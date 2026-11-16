@@ -616,7 +616,7 @@ MANIFEST = {
 (DST.parent / "manifest.webmanifest").write_text(json.dumps(MANIFEST, indent=2) + "\n", encoding="utf-8")
 
 SW_JS = r"""/* Stack Bank service worker — offline app shell (v6) */
-const CACHE='stack-bank-v6';
+const CACHE='stack-bank-v7';
 const FILES=['./','./stack-bank-premium.html','./manifest.webmanifest',
   './stack-bank-icons/icon-192.png','./stack-bank-icons/icon-512.png',
   './stack-bank-icons/icon-512-maskable.png','./stack-bank-icons/apple-touch-icon.png'];
@@ -789,6 +789,73 @@ function sbLogout(){
 """
 assert "load();\n</script>" in t
 t = t.replace("load();\n</script>", V7_JS + "\nload();\n</script>", 1)
+
+# ---------- v8: fix what needed fixing — real Settings, honest footer,
+# fresh accounts start at zero, name follows the account, onboard sign-in ----------
+SETTINGS_HTML = """
+<section class="screen hide" id="s-settings">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#141826,#33405e)">⚙️</div><div><small>App</small><b>Settings</b></div></div></div>
+  <div class="card">
+    <div class="mut" id="setStatus"></div>
+  </div>
+  <div class="card">
+    <div class="rowline"><div class="avatar">🪪</div><div class="grow"><b>My account</b><div class="dim">Sign in, server address, sync</div></div><button class="pill blue" onclick="go('account')">Open</button></div>
+    <div class="rowline"><div class="avatar">📲</div><div class="grow"><b>Install app</b><div class="dim">Put Stack Bank on your home screen</div></div><button class="pill blue" onclick="installApp()">Install</button></div>
+    <div class="rowline"><div class="avatar">👵</div><div class="grow"><b>Elder size</b><div class="dim">Bigger buttons, bigger text</div></div><button class="pill blue" onclick="toggleElder()">Toggle</button></div>
+  </div>
+  <div class="card">
+    <button class="bigbtn ghost" onclick="sbLogout()">Sign out</button>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="sbWipePhone()">Erase this phone's copy</button>
+    <div class="dim" style="margin-top:14px;line-height:1.6">Erasing only removes the copy on this phone. Your account on the server stays safe and comes back when you sign in again.</div>
+  </div>
+</section>
+"""
+assert "</section>\n</main>" in t
+t = t.replace("</section>\n</main>", "</section>\n" + SETTINGS_HTML + "</main>", 1)
+
+t = t.replace("  if(tab==='account')renderAccount();",
+              "  if(tab==='account')renderAccount();\n  if(tab==='settings')renderSettings();", 1)
+
+# The old footer claimed FDIC insurance from a partner bank that does not exist yet.
+t = t.replace("Stack Bank demo v2.0 · balances simulated · FDIC pass-through insurance arrives with our partner bank in the live version",
+              "Stack Bank Premium · test balances only · no real money moves yet · a licensed partner is needed before real money", 1)
+
+# Onboarding: let returning users go straight to sign-in instead of the demo.
+t = t.replace('      <button class="bigbtn" onclick="onbNext()">Open my account · under 60 seconds</button>',
+              '      <button class="bigbtn" onclick="onbNext()">Open my account · under 60 seconds</button>\n      <button class="bigbtn ghost" style="margin-top:10px" onclick="sbEnterToSignIn()">I already have an account — Sign in</button>', 1)
+
+# A new account starts at zero — it must not inherit the demo's $1,240.50.
+OLD_REG = "save(); toast('Account created. Welcome, '+j.user.name+'.');"
+assert OLD_REG in t
+t = t.replace(OLD_REG, "S.name=j.user.name; sbFreshState(); save(); toast('Account created. Welcome, '+j.user.name+'.');", 1)
+OLD_LOGIN = "save(); toast('Welcome back, '+j.user.name+'.');"
+assert OLD_LOGIN in t
+t = t.replace(OLD_LOGIN, "S.name=j.user.name; save(); toast('Welcome back, '+j.user.name+'.');", 1)
+OLD_PULL = "S.serverUpdatedAt=j.updated_at||0; S.syncStatus='synced'; S.syncAt=Date.now();\n      migrate(); save(); render();"
+assert OLD_PULL in t
+t = t.replace(OLD_PULL, "S.serverUpdatedAt=j.updated_at||0; S.syncStatus='synced'; S.syncAt=Date.now();\n      if(S.apiName)S.name=S.apiName;\n      migrate(); save(); render();", 1)
+
+V8_JS = r"""
+/* ===== Stack Premium v8 — fixes: Settings, fresh accounts, sign-in shortcut ===== */
+function sbFreshState(){
+  S.balance=0; S.txs=[]; S.cash=0;
+  if(S.jars)S.jars.forEach(function(j){ j.saved=0; });
+  S.holdings={}; S.pot={bal:0,auto:false}; S.shield={covered:0,recovered:0}; S.invoices=[];
+  S.ladder={on:false,weekly:250,reserve:0,lastPayday:null};
+  S.weekly=[0,0,0,0,0,0];
+  if(S.circle){ S.circle.pot=0; S.circle.paid=0; S.circle.round=1; }
+}
+function sbEnterToSignIn(){ finishOnboard(); go('account'); }
+function renderSettings(){
+  var a=$('setStatus'); if(!a)return;
+  a.innerHTML='Stack Bank Premium v8 · '+(sbToken()&&S.apiPhone?('signed in as <b>'+S.apiPhone+'</b> · sync: '+sbSyncLabel()):'not signed in — data lives only on this phone')+'<br>Server: '+(S.apiUrl||'not set');
+}
+function sbWipePhone(){
+  openModal('<h3>Erase this phone\'s copy?</h3><div class="mut">Your account on the server stays safe. This phone will show the first setup screen again.</div><button class="bigbtn" onclick="localStorage.removeItem(S_KEY);location.reload()">Yes, erase it</button><button class="bigbtn ghost" style="margin-top:10px" onclick="closeModal()">Cancel</button>');
+}
+"""
+assert "load();\n</script>" in t
+t = t.replace("load();\n</script>", V8_JS + "\nload();\n</script>", 1)
 
 DST.write_text(t, encoding="utf-8")
 print(f"wrote {DST}  {DST.stat().st_size} bytes  lines={t.count(chr(10))+1}")

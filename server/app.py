@@ -7,7 +7,11 @@ What it does:
   * Accounts: register / sign in with a phone number + 4-6 digit PIN.
   * Security: PINs are stored as scrypt hashes (never plain text), sessions are
     random bearer tokens that expire after 30 days, and 5 wrong PINs lock the
-    account for 15 minutes.
+    account for 15 minutes. Browsers may only read API responses from the
+    allow-listed origins (the GitHub Pages app and localhost; extra origins
+    via STACK_ORIGINS), and auth endpoints allow 20 attempts per IP per
+    minute. Wrong phone numbers get the same error as wrong PINs, so nobody
+    can probe which numbers have accounts.
   * State sync: each account keeps its own app state (balance, jars, ladder,
     transactions, Ajo circle) in SQLite. The phone app pulls it on sign-in
     and pushes it on every change, so the account follows the user to any
@@ -58,8 +62,23 @@ MAX_STATE = 1 * 1024 * 1024         # 1 MB state document cap
 SESSION_DAYS = 30
 LOCK_AFTER = 5                      # failed PINs before lockout
 LOCK_MINUTES = 15
+RATE_LIMIT = 20                     # auth attempts per IP per minute
+RATE_WINDOW = 60
 PHONE_RE = re.compile(r"^\+?[0-9]{7,15}$")
 PIN_RE = re.compile(r"^[0-9]{4,6}$")
+
+# CORS: only the real app origins may read API responses in a browser.
+# Extra origins via STACK_ORIGINS (comma-separated). Requests with no
+# Origin header (curl, same-origin, the app served by this server) are
+# not browser cross-origin reads and are answered with "*".
+ALLOWED_ORIGINS = {
+    "https://olamorea.github.io",
+    "http://127.0.0.1:8787",
+    "http://localhost:8787",
+}
+ALLOWED_ORIGINS.update(
+    o.strip() for o in os.environ.get("STACK_ORIGINS", "").split(",") if o.strip()
+)
 
 MIME = {
     ".html": "text/html; charset=utf-8",
@@ -144,6 +163,28 @@ def public_user(row: dict) -> dict:
     return {"id": row["id"], "phone": row["phone"], "name": row["name"]}
 
 
+# ------------------------------------------------------- auth rate limiting
+import threading
+
+_RATE: dict[str, list[float]] = {}
+_RATE_LOCK = threading.Lock()
+
+
+def rate_limited(ip: str) -> bool:
+    """True when this IP has used up its auth attempts for this minute."""
+    now = time.time()
+    with _RATE_LOCK:
+        if len(_RATE) > 5000:
+            _RATE.clear()
+        hits = [t for t in _RATE.get(ip, []) if now - t < RATE_WINDOW]
+        if len(hits) >= RATE_LIMIT:
+            _RATE[ip] = hits
+            return True
+        hits.append(now)
+        _RATE[ip] = hits
+        return False
+
+
 # ---------------------------------------------------------------- handler
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
@@ -153,7 +194,12 @@ class Handler(BaseHTTPRequestHandler):
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
     def _cors(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = self.headers.get("Origin")
+        if origin and origin in ALLOWED_ORIGINS:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+        elif not origin:
+            self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
 
@@ -233,6 +279,10 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as e:
             self._send(400, {"error": str(e)})
             return
+        if path in ("/api/auth/register", "/api/auth/login"):
+            if rate_limited(self.client_address[0]):
+                self._send(429, {"error": "too many attempts — try again in a minute"})
+                return
         if path == "/api/auth/register":
             self._register(data)
         elif path == "/api/auth/login":

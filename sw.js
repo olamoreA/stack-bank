@@ -1,5 +1,5 @@
 /* Stack Bank service worker — offline app shell (v6) */
-const CACHE='stack-bank-v6';
+const CACHE='stack-bank-v7';
 const FILES=['./','./stack-bank-premium.html','./manifest.webmanifest',
   './stack-bank-icons/icon-192.png','./stack-bank-icons/icon-512.png',
   './stack-bank-icons/icon-512-maskable.png','./stack-bank-icons/apple-touch-icon.png'];

@@ -54,9 +54,19 @@ python3 server/app.py
 Then open http://127.0.0.1:8787/ — the app is served from the same server.
 Inside the app: More → My account → set the server address, create an
 account with a phone number + PIN, and your balance, jars, ladder, and
-Ajo circle sync to the server and follow you to any phone. PINs are
-stored as scrypt hashes, 5 wrong PINs lock the account for 15 minutes.
+Ajo circle sync to the server and follow you to any phone. New accounts
+start at $0 — they never inherit the demo's money. PINs are stored as
+scrypt hashes, 5 wrong PINs lock the account for 15 minutes.
 See `server/README.md` for the API and how to keep it online.
+
+## Tests
+
+`tests/` holds the jsdom suites: v5 (ladder hero + edge cases), v6
+(installable PWA), v7 (two-device sign-in/sync against the live
+server), v8 (Settings screen, honest footer, fresh accounts, name
+sync). Run them all with `bash tests/run_all.sh` — v7/v8 need the
+server running first. The jsdom install lives outside the repo at
+`~/workspace/.jsdom-test/` so it never gets pushed.
 
 ## Status
 

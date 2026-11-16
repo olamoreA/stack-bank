@@ -521,6 +521,7 @@ input[type=range]{accent-color:#e9a93b}
       <h1>Banking built<br>for <em>how you<br>actually earn</em></h1>
       <p>Open your account in under 60 seconds: a phone number and ID, no branch, no paperwork. Then the engine takes over: steady paycheck, late-payer shield, multi-currency, investing, savings on autopilot.</p>
       <button class="bigbtn" onclick="onbNext()">Open my account · under 60 seconds</button>
+      <button class="bigbtn ghost" style="margin-top:10px" onclick="sbEnterToSignIn()">I already have an account — Sign in</button>
     </div>
     <div id="kyc" class="hide">
       <h1 style="font-size:26px">Almost there</h1>
@@ -1047,7 +1048,7 @@ input[type=range]{accent-color:#e9a93b}
     <div class="rowline"><div class="avatar">🛡</div><div class="grow"><b>Late-payer shield</b><div class="dim">We pay you when clients pay late</div></div><button class="pill blue" onclick="go('shield')">Open</button></div>
     <div class="rowline"><div class="avatar">🌤</div><div class="grow"><b>Salary weather</b><div class="dim">Your income forecast for the week</div></div><button class="pill blue" onclick="go('weather')">Open</button></div>
   </div>
-  <div class="card tight" style="text-align:center"><div class="dim">Stack Bank demo v2.0 · balances simulated · FDIC pass-through insurance arrives with our partner bank in the live version</div></div>
+  <div class="card tight" style="text-align:center"><div class="dim">Stack Bank Premium · test balances only · no real money moves yet · a licensed partner is needed before real money</div></div>
 </section>
 
 <section class="screen hide" id="s-account">
@@ -1065,6 +1066,23 @@ input[type=range]{accent-color:#e9a93b}
     <button class="bigbtn ghost" style="margin-top:10px" onclick="sbLogin()">Sign in</button>
     <button class="bigbtn ghost" style="margin-top:10px" onclick="sbLogout()">Sign out</button>
     <div class="dim" style="margin-top:14px;line-height:1.6">Your PIN is stored as a scrambled hash on the server, never as plain text. New phone? Finish the one-tap setup, then sign in here — your account replaces the demo. Money here is still test money; real money needs the licensed partner.</div>
+  </div>
+</section>
+
+<section class="screen hide" id="s-settings">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#141826,#33405e)">⚙️</div><div><small>App</small><b>Settings</b></div></div></div>
+  <div class="card">
+    <div class="mut" id="setStatus"></div>
+  </div>
+  <div class="card">
+    <div class="rowline"><div class="avatar">🪪</div><div class="grow"><b>My account</b><div class="dim">Sign in, server address, sync</div></div><button class="pill blue" onclick="go('account')">Open</button></div>
+    <div class="rowline"><div class="avatar">📲</div><div class="grow"><b>Install app</b><div class="dim">Put Stack Bank on your home screen</div></div><button class="pill blue" onclick="installApp()">Install</button></div>
+    <div class="rowline"><div class="avatar">👵</div><div class="grow"><b>Elder size</b><div class="dim">Bigger buttons, bigger text</div></div><button class="pill blue" onclick="toggleElder()">Toggle</button></div>
+  </div>
+  <div class="card">
+    <button class="bigbtn ghost" onclick="sbLogout()">Sign out</button>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="sbWipePhone()">Erase this phone's copy</button>
+    <div class="dim" style="margin-top:14px;line-height:1.6">Erasing only removes the copy on this phone. Your account on the server stays safe and comes back when you sign in again.</div>
   </div>
 </section>
 </main>
@@ -1147,6 +1165,7 @@ function go(tab){
   if(tab==='topup')renderTopup();if(tab==='bills')renderBills();if(tab==='pot')renderPot();
   if(tab==='ladder')renderLadder();
   if(tab==='account')renderAccount();
+  if(tab==='settings')renderSettings();
   if(tab==='shield')renderShield();
   if(tab==='weather')renderWeather();
   if(tab==='jars')renderJars();
@@ -2073,6 +2092,7 @@ function sbPullState(){
       var url=S.apiUrl, tok=S.apiToken, ph=S.apiPhone, nm=S.apiName;
       S=j.state; S.apiUrl=url; S.apiToken=tok; S.apiPhone=ph; S.apiName=nm;
       S.serverUpdatedAt=j.updated_at||0; S.syncStatus='synced'; S.syncAt=Date.now();
+      if(S.apiName)S.name=S.apiName;
       migrate(); save(); render(); if($('acctStatus'))renderAccount();
     }
   }).catch(function(){ /* offline or server down: stay on the phone copy */ });
@@ -2105,7 +2125,7 @@ function sbRegister(){
   return sbReq('/api/auth/register',{method:'POST',body:{phone:phone,name:name,pin:pin}}).then(function(j){
     S.apiToken=j.token; S.apiPhone=j.user.phone; S.apiName=j.user.name; S.serverUpdatedAt=0;
     $('acctPhone').value=j.user.phone; $('acctName').value=j.user.name; $('acctPin').value='';
-    save(); toast('Account created. Welcome, '+j.user.name+'.');
+    S.name=j.user.name; sbFreshState(); save(); toast('Account created. Welcome, '+j.user.name+'.');
     return sbPushState().then(function(){ renderAccount(); });
   }).catch(function(e){ toast(e.message||'Could not create the account'); renderAccount(); });
 }
@@ -2115,7 +2135,7 @@ function sbLogin(){
   return sbReq('/api/auth/login',{method:'POST',body:{phone:phone,pin:pin}}).then(function(j){
     S.apiToken=j.token; S.apiPhone=j.user.phone; S.apiName=j.user.name; S.serverUpdatedAt=0;
     $('acctPhone').value=j.user.phone; $('acctName').value=j.user.name; $('acctPin').value='';
-    save(); toast('Welcome back, '+j.user.name+'.');
+    S.name=j.user.name; save(); toast('Welcome back, '+j.user.name+'.');
     return sbPullState().then(function(){ renderAccount(); });
   }).catch(function(e){ toast(e.message||'Could not sign in'); renderAccount(); });
 }
@@ -2124,6 +2144,25 @@ function sbLogout(){
   if(t)sbReq('/api/auth/logout',{method:'POST'}).catch(function(){});
   S.apiToken=''; S.apiPhone=''; S.apiName=''; S.syncStatus='off'; save(); renderAccount();
   toast('Signed out. Your data stays on this phone.');
+}
+
+
+/* ===== Stack Premium v8 — fixes: Settings, fresh accounts, sign-in shortcut ===== */
+function sbFreshState(){
+  S.balance=0; S.txs=[]; S.cash=0;
+  if(S.jars)S.jars.forEach(function(j){ j.saved=0; });
+  S.holdings={}; S.pot={bal:0,auto:false}; S.shield={covered:0,recovered:0}; S.invoices=[];
+  S.ladder={on:false,weekly:250,reserve:0,lastPayday:null};
+  S.weekly=[0,0,0,0,0,0];
+  if(S.circle){ S.circle.pot=0; S.circle.paid=0; S.circle.round=1; }
+}
+function sbEnterToSignIn(){ finishOnboard(); go('account'); }
+function renderSettings(){
+  var a=$('setStatus'); if(!a)return;
+  a.innerHTML='Stack Bank Premium v8 · '+(sbToken()&&S.apiPhone?('signed in as <b>'+S.apiPhone+'</b> · sync: '+sbSyncLabel()):'not signed in — data lives only on this phone')+'<br>Server: '+(S.apiUrl||'not set');
+}
+function sbWipePhone(){
+  openModal('<h3>Erase this phone\'s copy?</h3><div class="mut">Your account on the server stays safe. This phone will show the first setup screen again.</div><button class="bigbtn" onclick="localStorage.removeItem(S_KEY);location.reload()">Yes, erase it</button><button class="bigbtn ghost" style="margin-top:10px" onclick="closeModal()">Cancel</button>');
 }
 
 load();

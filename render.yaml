@@ -1,0 +1,12 @@
+# Deploy the Stack Bank API on Render's free tier.
+# In the Render dashboard: New -> Web Service -> connect this repo.
+# Render sets PORT itself; the server reads it.
+services:
+  - type: web
+    name: stack-bank-api
+    env: python
+    buildCommand: pip install -r server/requirements.txt
+    startCommand: python3 server/app.py
+    envVars:
+      - key: STACK_ORIGINS
+        value: https://olamorea.github.io
