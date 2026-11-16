@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#070b18">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Stack Bank">
+<link rel="apple-touch-icon" href="./stack-bank-icons/apple-touch-icon.png">
 <title>Stack Bank — Premium</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1027,6 +1034,7 @@ input[type=range]{accent-color:#e9a93b}
     <button onclick="go('circles')">🤝 Ajo circles</button>
     <button onclick="go('machines')">🤖 Machine wallets</button>
     <button onclick="go('offline')">📶 Works offline</button>
+    <button onclick="installApp()">📲 Install app</button>
     <button onclick="go('topup')">📲 Airtime &amp; data</button>
     <button onclick="go('bills')">💡 Pay bills</button>
     <button onclick="go('pot')">🏦 Stack Pot</button>
@@ -1981,6 +1989,20 @@ function missedPayment(i){
   save(); render(); renderCircles();
   toast('Escrow covered '+m.n+'. Their trust dropped to '+m.trust+'.');
 }
+
+
+/* ===== Stack Premium v6 — installable PWA ===== */
+var _installEvt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_installEvt=e;});
+function installApp(){
+  if(_installEvt){
+    _installEvt.prompt();
+    _installEvt.userChoice.then(function(c){if(c.outcome==='accepted')toast('Stack Bank is installing. Look for it on your home screen.');_installEvt=null;});
+    return;
+  }
+  openModal('<h3>Install Stack Bank</h3><div class="mut">Put the app on your home screen so it opens like a real app, even with no data.</div><div class="okbox" style="font-size:15px;line-height:1.7"><b>Android (Chrome):</b> tap the three dots at the top right, then <b>Add to Home screen</b>.<br><b>iPhone (Safari):</b> tap Share, then <b>Add to Home Screen</b>.<br><br>It only works from a web link (https), not from a downloaded file — open the hosted link to install it.</div><button class="bigbtn" onclick="closeModal()">Got it</button>');
+}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}
 
 load();
 </script>

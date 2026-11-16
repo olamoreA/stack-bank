@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build Stack Bank Premium from stack-bank__17.html — keeps ALL logic/screens,
 replaces the visual layer: animated background, professional SVG icons, premium glass/gold."""
-import pathlib, re
+import json, pathlib, re
 
 SRC = pathlib.Path("workspace/user/files/stack-bank__17.html")
 DST = pathlib.Path("workspace/user/files/stack-bank-premium.html")
@@ -580,6 +580,76 @@ OLD_RX_TAIL = r"+'\uFE0F?'"
 NEW_RX_TAIL = r"+'(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?'"
 assert OLD_RX_TAIL in t, "engine A RX tail not found"
 t = t.replace(OLD_RX_TAIL, NEW_RX_TAIL, 1)
+
+# ---------- v6: installable PWA — manifest + service worker + install button ----------
+PWA_LINKS = (
+  '<link rel="manifest" href="./manifest.webmanifest">\n'
+  '<meta name="theme-color" content="#070b18">\n'
+  '<meta name="mobile-web-app-capable" content="yes">\n'
+  '<meta name="apple-mobile-web-app-capable" content="yes">\n'
+  '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
+  '<meta name="apple-mobile-web-app-title" content="Stack Bank">\n'
+  '<link rel="apple-touch-icon" href="./stack-bank-icons/apple-touch-icon.png">'
+)
+t = t.replace('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+              '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n' + PWA_LINKS, 1)
+
+t = t.replace("    <button onclick=\"go('offline')\">📶 Works offline</button>",
+              "    <button onclick=\"go('offline')\">📶 Works offline</button>\n    <button onclick=\"installApp()\">📲 Install app</button>", 1)
+
+MANIFEST = {
+  "name": "Stack Bank",
+  "short_name": "Stack Bank",
+  "description": "A steady weekly salary from uneven gig income.",
+  "start_url": "./stack-bank-premium.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070b18",
+  "theme_color": "#070b18",
+  "icons": [
+    {"src": "./stack-bank-icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "./stack-bank-icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "./stack-bank-icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+  ],
+}
+(DST.parent / "manifest.webmanifest").write_text(json.dumps(MANIFEST, indent=2) + "\n", encoding="utf-8")
+
+SW_JS = r"""/* Stack Bank service worker — offline app shell (v6) */
+const CACHE='stack-bank-v6';
+const FILES=['./','./stack-bank-premium.html','./manifest.webmanifest',
+  './stack-bank-icons/icon-192.png','./stack-bank-icons/icon-512.png',
+  './stack-bank-icons/icon-512-maskable.png','./stack-bank-icons/apple-touch-icon.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  if(new URL(e.request.url).origin!==location.origin)return; // leave fonts/CDN to the network
+  e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(r=>r||fetch(e.request).then(res=>{
+    const copy=res.clone();
+    caches.open(CACHE).then(c=>c.put(e.request,copy));
+    return res;
+  }).catch(()=>caches.match('./stack-bank-premium.html'))));
+});
+"""
+(DST.parent / "sw.js").write_text(SW_JS, encoding="utf-8")
+
+V6_JS = r"""
+/* ===== Stack Premium v6 — installable PWA ===== */
+var _installEvt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_installEvt=e;});
+function installApp(){
+  if(_installEvt){
+    _installEvt.prompt();
+    _installEvt.userChoice.then(function(c){if(c.outcome==='accepted')toast('Stack Bank is installing. Look for it on your home screen.');_installEvt=null;});
+    return;
+  }
+  openModal('<h3>Install Stack Bank</h3><div class="mut">Put the app on your home screen so it opens like a real app, even with no data.</div><div class="okbox" style="font-size:15px;line-height:1.7"><b>Android (Chrome):</b> tap the three dots at the top right, then <b>Add to Home screen</b>.<br><b>iPhone (Safari):</b> tap Share, then <b>Add to Home Screen</b>.<br><br>It only works from a web link (https), not from a downloaded file — open the hosted link to install it.</div><button class="bigbtn" onclick="closeModal()">Got it</button>');
+}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}
+"""
+assert "load();\n</script>" in t
+t = t.replace("load();\n</script>", V6_JS + "\nload();\n</script>", 1)
 
 DST.write_text(t, encoding="utf-8")
 print(f"wrote {DST}  {DST.stat().st_size} bytes  lines={t.count(chr(10))+1}")

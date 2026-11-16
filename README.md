@@ -27,6 +27,21 @@ idea: uneven gig income should still feel like a steady weekly salary.
 - **Easy mode:** big buttons, big text, voice read-out, USSD and SMS banking
   for phones with no data.
 
+## Install it on your phone
+
+Stack Bank is a PWA, so it installs like a real app — its own icon, full
+screen, and it works offline.
+
+1. Open the app from a web link over https (for example a GitHub Pages link).
+   Installing does **not** work from a downloaded file.
+2. Android (Chrome): tap the three dots, then **Add to Home screen**.
+   iPhone (Safari): tap Share, then **Add to Home Screen**.
+3. Or tap **Install app** on the More screen inside the app.
+
+The install files are `manifest.webmanifest`, `sw.js` (offline service
+worker), and the icons in `stack-bank-icons/`. They are all generated or
+referenced by `build_stack_premium.py`.
+
 ## Status
 
 This is a front-end demo. It moves no real money and connects to no bank.
