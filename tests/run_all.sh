@@ -9,7 +9,7 @@ if [ ! -d /home/hatch/workspace/.jsdom-test/node_modules/jsdom ]; then
   mkdir -p /home/hatch/workspace/.jsdom-test
   npm install jsdom --prefix /home/hatch/workspace/.jsdom-test --no-save --no-audit --no-fund
 fi
-for t in tests/test_v5.js tests/test_v6.js tests/test_v7.js tests/test_v8.js; do
+for t in tests/test_v5.js tests/test_v6.js tests/test_v7.js tests/test_v8.js tests/test_v9.js; do
   echo "===== $t ====="
   node "$t"
 done

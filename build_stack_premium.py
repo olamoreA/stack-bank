@@ -857,6 +857,103 @@ function sbWipePhone(){
 assert "load();\n</script>" in t
 t = t.replace("load();\n</script>", V8_JS + "\nload();\n</script>", 1)
 
+# ---------- v9: the opening and the home page must feel beautiful and premium ----------
+ONB_SHOW = """
+  <div class="onb-show">
+    <div class="onb-glow"></div>
+    <div class="onb-card-mini">
+      <div class="onb-mini-top"><span class="onb-mini-logo">S</span><span>STACK BANK</span><span class="onb-mini-chip">PREMIUM</span></div>
+      <div class="onb-mini-bal"><small>Available to spend</small><b>$<span id="onbBal">0.00</span></b></div>
+      <div class="onb-mini-bot"><span>•••• 4821</span><span>AVA</span></div>
+    </div>
+    <div class="onb-chip c1"><span class="oc-ic">🛴</span> Dash payout <b>+$86.20</b></div>
+    <div class="onb-chip c2"><span class="oc-ic">💵</span> Salary Friday <b>$250</b></div>
+  </div>
+"""
+assert '  <div class="onb-card">' in t
+t = t.replace('  <div class="onb-card">', ONB_SHOW + '  <div class="onb-card">', 1)
+
+t = t.replace('    <div id="onbStep">',
+              '    <div id="onbStep">\n      <div class="onb-eyebrow">STACK BANK · PREMIUM</div>', 1)
+
+t = t.replace('      <button class="bigbtn" onclick="onbNext()">Open my account · under 60 seconds</button>',
+              '      <button class="bigbtn" onclick="onbNext()">Open my account · under 60 seconds</button>\n      <div class="onb-trust"><span>Free to try</span><i></i><span>No branch</span><i></i><span>No paperwork</span></div>', 1)
+
+V9_CSS = r"""
+/* ===== Stack Premium v9 — beautiful opening + premium home ===== */
+@keyframes fadeUp{from{transform:translateY(26px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes sheen{0%{transform:translateX(-140%) skewX(-18deg)}55%,100%{transform:translateX(340%) skewX(-18deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes cardFloat{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(-3deg) translateY(-10px)}}
+@keyframes glowPulse{0%,100%{opacity:.5}50%{opacity:.85}}
+.onb-show{flex:1; position:relative; z-index:1; display:flex; align-items:center; justify-content:center; pointer-events:none; animation:fadeUp .8s ease both}
+.onb-glow{position:absolute; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, rgba(246,196,83,.34), rgba(139,92,246,.18) 55%, transparent 70%); filter:blur(10px); animation:glowPulse 4s ease-in-out infinite}
+.onb-card-mini{position:relative; width:300px; max-width:82vw; aspect-ratio:1.586; border-radius:22px; padding:20px 22px; color:#fff; overflow:hidden; animation:cardFloat 7s ease-in-out infinite; background:linear-gradient(130deg,#2b2104,#7c6215 38%,#d4af37 68%,#5c4709); box-shadow:0 34px 60px -18px rgba(0,0,0,.75), 0 0 0 1px rgba(255,235,170,.35), inset 0 1px 0 rgba(255,255,255,.4)}
+.onb-card-mini::before{content:""; position:absolute; inset:0; background:radial-gradient(300px 140px at 90% -20%, rgba(255,238,180,.65), transparent 60%)}
+.onb-card-mini::after{content:""; position:absolute; top:0; left:0; width:40%; height:100%; background:linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent); animation:sheen 6s ease-in-out infinite}
+.onb-mini-top{display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; letter-spacing:2px; position:relative}
+.onb-mini-logo{width:26px; height:26px; border-radius:8px; display:grid; place-items:center; font-size:14px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.35)}
+.onb-mini-chip{margin-left:auto; font-size:8.5px; letter-spacing:1.5px; padding:4px 8px; border-radius:20px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.3)}
+.onb-mini-bal{margin-top:26px; position:relative}
+.onb-mini-bal small{display:block; font-size:10px; text-transform:uppercase; letter-spacing:2px; opacity:.75}
+.onb-mini-bal b{font-size:34px; font-weight:800; letter-spacing:-1.5px}
+.onb-mini-bot{display:flex; justify-content:space-between; margin-top:22px; font-size:12px; font-weight:600; letter-spacing:2px; opacity:.9; position:relative}
+.onb-chip{position:absolute; display:flex; align-items:center; gap:7px; padding:10px 14px; border-radius:16px; font-size:12.5px; font-weight:600; color:var(--tx); background:rgba(13,17,30,.82); border:1px solid rgba(255,255,255,.16); box-shadow:0 18px 34px -12px rgba(0,0,0,.7); backdrop-filter:blur(12px); animation:bob 5s ease-in-out infinite}
+.onb-chip b{color:#2ee6a8}
+.onb-chip.c1{top:12%; left:2%}
+.onb-chip.c2{bottom:10%; right:0%; animation-delay:-2.5s}
+.onb-chip.c2 b{color:#f6c453}
+.oc-ic{display:grid; place-items:center; width:24px; height:24px}
+.onb-eyebrow{font-size:11px; font-weight:800; letter-spacing:3px; color:#f6c453; margin-bottom:12px}
+.onb-trust{display:flex; align-items:center; justify-content:center; gap:10px; margin-top:18px; font-size:12px; font-weight:600; color:var(--tx2)}
+.onb-trust i{width:4px; height:4px; border-radius:50%; background:rgba(246,196,83,.7)}
+.onb-card h1{animation:fadeUp .7s .1s ease both}
+.onb-card p{animation:fadeUp .7s .2s ease both}
+.onb-card .bigbtn{animation:fadeUp .7s .3s ease both}
+@media (max-height:640px){ .onb-show{transform:scale(.82)} }
+/* --- home: the balance becomes a jewel, not a box --- */
+.hero{background:linear-gradient(155deg,#221a05 0%,#141a33 48%,#07271f 100%); border:1px solid rgba(246,196,83,.35); box-shadow:0 30px 60px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.09)}
+.hero::before{background:radial-gradient(420px 200px at 88% -10%, rgba(246,196,83,.28), transparent 62%), radial-gradient(300px 170px at 0% 115%, rgba(46,230,168,.16), transparent 60%)}
+.hero::after{background:linear-gradient(100deg, transparent, rgba(255,255,255,.09), transparent); width:42%; height:100%; border-radius:0; right:auto; top:0; left:0; animation:sheen 7s ease-in-out infinite}
+.hero small{letter-spacing:1.6px; text-transform:uppercase; font-size:11px}
+.hero small:first-of-type::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#2ee6a8; margin-right:8px; box-shadow:0 0 12px #2ee6a8; animation:pulse 2s infinite}
+.hero .amt{font-size:52px; letter-spacing:-2.5px; margin:10px 0 4px; text-shadow:0 4px 24px rgba(0,0,0,.45)}
+.hero .row button{box-shadow:0 10px 22px -10px rgba(0,0,0,.55)}
+.head .logo{box-shadow:0 0 0 2px rgba(246,196,83,.45), 0 8px 20px -6px rgba(246,196,83,.4)}
+.head small{letter-spacing:1.5px; text-transform:uppercase; font-size:10px}
+.shead h3::before{content:""; display:inline-block; width:9px; height:9px; border-radius:3px; background:linear-gradient(135deg,#f6c453,#ff8a3d); margin-right:9px; vertical-align:1px}
+.tiles button{box-shadow:0 12px 24px -14px rgba(0,0,0,.6); transition:transform .18s ease, box-shadow .18s ease}
+.tiles button:hover{transform:translateY(-2px)}
+.tiles .ti{box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+#ladderHero{box-shadow:0 24px 48px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08)}
+.splitbar{overflow:hidden; position:relative}
+.splitbar::after{content:""; position:absolute; top:0; left:0; width:40%; height:100%; background:linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent); animation:sheen 5s ease-in-out infinite}
+.bigbtn{overflow:hidden; position:relative}
+.bigbtn::after{content:""; position:absolute; top:0; left:0; width:38%; height:100%; background:linear-gradient(100deg, transparent, rgba(255,255,255,.14), transparent); animation:sheen 8s ease-in-out infinite}
+"""
+assert "</head>" in t
+t = t.replace("</head>", "<style>\n" + V9_CSS + "\n</style>\n</head>", 1)
+
+V9_JS = r"""
+/* ===== Stack Premium v9 — opening showcase balance count-up ===== */
+(function(){
+  var el=document.getElementById('onbBal'); if(!el)return;
+  var target=1240.50;
+  function fmt(v){ return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  if(typeof requestAnimationFrame!=='function'){ el.textContent=fmt(target); return; }
+  var t0=null;
+  function step(ts){
+    if(!t0)t0=ts;
+    var p=Math.min(1,(ts-t0)/1400), e=1-Math.pow(1-p,3);
+    el.textContent=fmt(target*e);
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
+"""
+assert "load();\n</script>" in t
+t = t.replace("load();\n</script>", V9_JS + "\nload();\n</script>", 1)
+
 DST.write_text(t, encoding="utf-8")
 print(f"wrote {DST}  {DST.stat().st_size} bytes  lines={t.count(chr(10))+1}")
 # quick checks
