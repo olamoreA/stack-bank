@@ -1,2 +1,44 @@
-# stack-bank
-Stack Bank — premium banking app demo for gig workers (front-end demo only, no real money)
+# Stack Bank
+
+A premium banking app demo for gig workers and freelancers, built around one
+idea: uneven gig income should still feel like a steady weekly salary.
+
+## What is in this repo
+
+- `stack-bank-premium.html` — the app. Download it and open it in any browser.
+  No server, no install, no account. Your data stays in your browser.
+- `stack-bank__17.html` — the original design this premium version is built on.
+  It is kept untouched.
+- `build_stack_premium.py` — the builder. It turns the original file into the
+  premium file, so every version is reproducible.
+
+## What the app does
+
+- **Paycheck ladder (the hero):** your week's gig income is split on the home
+  screen into a steady Friday salary, a buffer reserve, savings jars, and
+  money to spend — with the math shown live.
+- **Late-payer shield:** log an invoice; if the client pays late, the shield
+  fronts you the money and chases them.
+- **Ajo savings circles:** group savings with an escrow that covers a missed
+  share and a trust score that drops when someone misses.
+- **Real edge cases, not just the happy path:** failed transfers are recorded
+  with a retry, sends queue when data is off and settle when it returns, and
+  a duplicate send is stopped and confirmed before it goes twice.
+- **Easy mode:** big buttons, big text, voice read-out, USSD and SMS banking
+  for phones with no data.
+
+## Status
+
+This is a front-end demo. It moves no real money and connects to no bank.
+Turning it into a real banking app needs a licensed bank partner and a real
+backend — that is the next chapter, not this file.
+
+## Rebuild
+
+From your home directory:
+
+```sh
+python3 workspace/build_stack_premium.py
+```
+
+That rewrites `stack-bank-premium.html` from the original source.

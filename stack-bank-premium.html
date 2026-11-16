@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stack Bank — Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f; --bg2:#0b0f1a; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --tx:#f2f5ff; --tx2:#9aa3bd; --tx3:#5d6579;
+  --acc:#5b7cfa; --acc2:#8b5cf6; --mint:#2ee6a8; --gold:#ffc466; --red:#ff5d73; --pink:#ff7ab8;
+  --r:22px; --r2:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Sora',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--tx);
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(91,124,250,.22), transparent 60%),
+    radial-gradient(700px 500px at 110% 20%, rgba(139,92,246,.16), transparent 60%),
+    radial-gradient(800px 600px at 50% 120%, rgba(46,230,168,.10), transparent 60%);
+}
+body.light{
+  --bg:#eef1f8; --bg2:#f7f9ff; --panel:rgba(255,255,255,.75); --panel2:rgba(255,255,255,.95);
+  --line:rgba(15,23,42,.08); --line2:rgba(15,23,42,.14);
+  --tx:#101528; --tx2:#4a5570; --tx3:#8b93aa;
+}
+body.light::before{
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(91,124,250,.14), transparent 60%),
+    radial-gradient(700px 500px at 110% 20%, rgba(139,92,246,.10), transparent 60%),
+    radial-gradient(800px 600px at 50% 120%, rgba(46,230,168,.12), transparent 60%);
+}
+#app{position:relative; z-index:1; max-width:480px; margin:0 auto; height:100dvh; display:flex; flex-direction:column}
+main{flex:1; overflow-y:auto; overscroll-behavior:contain; padding:0 18px 110px; scroll-behavior:smooth}
+main::-webkit-scrollbar{display:none}
+.hide{display:none!important}
+
+/* ONBOARDING */
+.onboard{position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; justify-content:flex-end;
+  background:radial-gradient(1000px 600px at 50% -20%, rgba(91,124,250,.35), transparent 60%), var(--bg)}
+.onboard .orb{position:absolute; border-radius:50%; filter:blur(70px); opacity:.5; animation:float 9s ease-in-out infinite}
+.onb-card{position:relative; padding:34px 26px 44px; border-radius:34px 34px 0 0; background:linear-gradient(180deg, rgba(13,17,30,.6), rgba(7,9,15,.92)); backdrop-filter:blur(20px); border:1px solid var(--line)}
+.onb-card h1{font-size:34px; font-weight:800; line-height:1.12; letter-spacing:-1px}
+.onb-card h1 em{font-style:normal; background:linear-gradient(90deg,var(--acc),var(--mint)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.onb-card p{color:var(--tx2); font-size:14px; line-height:1.65; margin:14px 0 26px}
+.dots{display:flex; gap:7px; margin:20px 0 18px}
+.dots span{width:7px; height:7px; border-radius:99px; background:var(--line2); transition:.3s}
+.dots span.on{width:26px; background:linear-gradient(90deg,var(--acc),var(--mint))}
+.kyc{display:flex; align-items:center; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:14px}
+.kyc .bar{flex:1; height:6px; border-radius:99px; background:var(--panel2); overflow:hidden}
+.kyc .bar i{display:block; height:100%; width:38%; border-radius:99px; background:linear-gradient(90deg,var(--acc),var(--mint)); animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-24px)}}
+.bigbtn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:17px; border:none; border-radius:18px;
+  font-family:inherit; font-weight:700; font-size:16px; color:#fff; cursor:pointer;
+  background:linear-gradient(135deg,var(--acc),var(--acc2)); box-shadow:0 14px 34px -10px rgba(91,124,250,.55); transition:transform .15s}
+.bigbtn:active{transform:scale(.97)}
+.bigbtn.ghost{background:var(--panel); box-shadow:none; border:1px solid var(--line); color:var(--tx)}
+.bigbtn.gold{background:linear-gradient(135deg,#f7b955,#ff8a3d); box-shadow:0 14px 34px -10px rgba(255,170,80,.5)}
+
+/* HEADER */
+.head{display:flex; align-items:center; justify-content:space-between; padding:18px 2px 6px}
+.brand{display:flex; align-items:center; gap:11px}
+.logo{width:42px; height:42px; border-radius:14px; display:grid; place-items:center; font-weight:800; font-size:17px; color:#fff;
+  background:linear-gradient(135deg,var(--acc),var(--acc2)); box-shadow:0 8px 22px -6px rgba(91,124,250,.6)}
+.brand small{display:block; color:var(--tx3); font-size:11px; font-weight:600; letter-spacing:.4px}
+.brand b{font-size:16px; letter-spacing:-.3px}
+.head .acts{display:flex; gap:9px}
+.icobtn{width:40px; height:40px; border-radius:14px; border:1px solid var(--line); background:var(--panel); color:var(--tx);
+  display:grid; place-items:center; cursor:pointer; font-size:16px; transition:transform .15s}
+.icobtn:active{transform:scale(.92)}
+.icobtn .dot{position:absolute; margin:-6px 0 0 22px; width:8px; height:8px; border-radius:99px; background:var(--red); border:2px solid var(--bg)}
+.icobtn{position:relative}
+.demo-chip{display:inline-flex; align-items:center; gap:6px; margin:0 0 4px; padding:5px 11px; border-radius:99px; font-size:10.5px; font-weight:700; letter-spacing:1px;
+  color:#ffd98a; background:rgba(255,196,102,.1); border:1px solid rgba(255,196,102,.25)}
+
+/* HERO BALANCE */
+.hero{margin:14px 0 4px; padding:26px 22px; border-radius:28px; position:relative; overflow:hidden;
+  background:linear-gradient(140deg, rgba(91,124,250,.9), rgba(139,92,246,.85) 60%, rgba(46,230,168,.75));
+  box-shadow:0 24px 50px -18px rgba(91,124,250,.55)}
+.hero::after{content:""; position:absolute; width:280px; height:280px; border-radius:50%; right:-90px; top:-110px; background:rgba(255,255,255,.14)}
+.hero::before{content:""; position:absolute; width:180px; height:180px; border-radius:50%; left:-60px; bottom:-90px; background:rgba(255,255,255,.09)}
+.hero small{color:rgba(255,255,255,.75); font-size:12px; font-weight:600}
+.hero .amt{font-size:42px; font-weight:800; letter-spacing:-1.5px; margin:6px 0 3px}
+.hero .amt span{font-size:18px; font-weight:600; opacity:.8}
+.hero .row{display:flex; gap:10px; margin-top:20px}
+.hero .row button{flex:1; padding:13px 8px; border:none; border-radius:15px; font-family:inherit; font-weight:700; font-size:13.5px; cursor:pointer;
+  background:rgba(255,255,255,.16); color:#fff; backdrop-filter:blur(8px); transition:transform .15s; border:1px solid rgba(255,255,255,.22)}
+.hero .row button:active{transform:scale(.95)}
+.weather{display:flex; align-items:center; gap:10px; margin-top:14px; padding:12px 14px; border-radius:16px; font-size:12.5px; line-height:1.5; color:var(--tx);
+  background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.2); cursor:pointer; text-align:left; width:100%; font-family:inherit}
+.weather b{color:#fff}
+.weather .w-ic{font-size:18px}
+
+/* QUICK TILES */
+.tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:18px 0 8px}
+.tiles button{padding:15px 4px 13px; border:none; border-radius:18px; cursor:pointer; font-family:inherit;
+  background:var(--panel); border:1px solid var(--line); color:var(--tx); display:flex; flex-direction:column; align-items:center; gap:7px; transition:transform .15s}
+.tiles button:active{transform:scale(.94)}
+.tiles .ti{width:38px; height:38px; border-radius:13px; display:grid; place-items:center; font-size:17px}
+.tiles small{font-size:10.5px; font-weight:600; color:var(--tx2)}
+
+/* SECTION HEAD */
+.shead{display:flex; align-items:center; justify-content:space-between; margin:24px 0 12px}
+.shead h3{font-size:16.5px; letter-spacing:-.3px}
+.shead button{border:none; background:none; color:var(--acc); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer}
+
+/* CARD GLASS */
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:18px; margin-bottom:14px}
+.card.tight{padding:14px 16px}
+.flex{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.stack-v{display:flex; flex-direction:column; gap:6px}
+.pill{font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:99px; letter-spacing:.4px}
+.pill.mint{color:var(--mint); background:rgba(46,230,168,.12); border:1px solid rgba(46,230,168,.3)}
+.pill.gold{color:var(--gold); background:rgba(255,196,102,.12); border:1px solid rgba(255,196,102,.3)}
+.pill.red{color:var(--red); background:rgba(255,93,115,.12); border:1px solid rgba(255,93,115,.3)}
+.pill.blue{color:#9db1ff; background:rgba(91,124,250,.14); border:1px solid rgba(91,124,250,.35)}
+.num{font-size:24px; font-weight:800; letter-spacing:-.5px}
+.mut{color:var(--tx2); font-size:12.5px; line-height:1.6}
+.dim{color:var(--tx3); font-size:11.5px}
+.rowline{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line)}
+.rowline:last-child{border-bottom:none}
+.avatar{width:40px; height:40px; border-radius:14px; display:grid; place-items:center; font-size:17px; flex-shrink:0; background:var(--panel2); border:1px solid var(--line)}
+.rowline .grow{flex:1; min-width:0}
+.rowline b{font-size:14px; font-weight:600}
+.rowline .amt{text-align:right}
+.rowline .amt b{font-size:14px}
+.pos{color:var(--mint)} .neg{color:var(--tx)}
+
+/* METAL CARD */
+.bankcard{position:relative; margin:6px 0 16px; padding:24px; border-radius:26px; aspect-ratio:1.586; overflow:hidden; color:#fff;
+  background:linear-gradient(130deg,#141826,#1d2338 45%,#0d1017); box-shadow:0 26px 50px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12)}
+.bankcard::before{content:""; position:absolute; inset:0; background:
+  radial-gradient(400px 200px at 90% -20%, rgba(91,124,250,.5), transparent 60%),
+  radial-gradient(300px 200px at -10% 110%, rgba(139,92,246,.35), transparent 60%)}
+.bankcard.frozen::before{background:radial-gradient(400px 200px at 90% -20%, rgba(120,180,255,.55), transparent 60%); filter:saturate(.5)}
+.bankcard .row1{display:flex; justify-content:space-between; align-items:flex-start; position:relative}
+.bankcard .wifi{font-size:22px; opacity:.9}
+.bankcard .num4{margin:26px 0 0; font-size:19px; letter-spacing:2.5px; font-weight:600; position:relative}
+.bankcard .row2{display:flex; justify-content:space-between; align-items:flex-end; margin-top:24px; position:relative}
+.bankcard .lbl{font-size:9px; text-transform:uppercase; letter-spacing:1.5px; opacity:.55}
+.bankcard .val{font-size:13px; font-weight:600; margin-top:3px}
+.card-actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px}
+.chip-toggle{display:flex; align-items:center; justify-content:space-between; padding:15px 16px; border-radius:16px; background:var(--panel); border:1px solid var(--line); cursor:pointer}
+.switch{width:46px; height:26px; border-radius:99px; background:var(--panel2); border:1px solid var(--line2); position:relative; transition:.25s; flex-shrink:0}
+.switch::after{content:""; position:absolute; width:20px; height:20px; border-radius:99px; background:#fff; top:2px; left:2px; transition:.25s; box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.switch.on{background:linear-gradient(90deg,var(--acc),var(--acc2)); border-color:transparent}
+.switch.on::after{left:22px}
+.sliderrow{padding:6px 2px}
+.sliderrow label{display:flex; justify-content:space-between; font-size:12.5px; color:var(--tx2); margin-bottom:10px; font-weight:600}
+input[type=range]{width:100%; accent-color:var(--acc)}
+
+/* JARS */
+.jar{display:flex; align-items:center; gap:13px; margin-bottom:12px}
+.jar .fillzone{flex:1}
+.jar .bar{height:9px; border-radius:99px; background:var(--panel2); overflow:hidden; margin-top:7px}
+.jar .bar i{display:block; height:100%; border-radius:99px; transition:width .6s}
+.jemoji{width:44px; height:44px; border-radius:16px; display:grid; place-items:center; font-size:20px; flex-shrink:0}
+.jname{display:flex; justify-content:space-between; font-size:13.5px; font-weight:600}
+.jname span:last-child{color:var(--tx2); font-weight:700}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:9px}
+.grid3 button{padding:13px 6px; border-radius:15px; border:1px solid var(--line); background:var(--panel); color:var(--tx); font-family:inherit; font-size:12px; font-weight:700; cursor:pointer}
+.grid3 button:active{transform:scale(.95)}
+
+/* NAV */
+nav{position:absolute; left:14px; right:14px; bottom:14px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px;
+  border-radius:26px; background:rgba(15,19,32,.82); backdrop-filter:blur(22px); border:1px solid var(--line2); box-shadow:0 20px 40px -14px rgba(0,0,0,.6)}
+body.light nav{background:rgba(255,255,255,.85)}
+nav button{border:none; background:none; color:var(--tx3); font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 12px; font-size:10px; font-weight:600; transition:.2s}
+nav button .nico{font-size:19px; filter:grayscale(1); opacity:.75; transition:.2s}
+nav button.on{color:var(--tx)}
+nav button.on .nico{filter:none; opacity:1; transform:translateY(-2px)}
+nav .sendfab{width:54px; height:54px; border-radius:20px; border:none; cursor:pointer; display:grid; place-items:center; font-size:22px; color:#fff;
+  background:linear-gradient(135deg,var(--acc),var(--acc2)); box-shadow:0 14px 30px -8px rgba(91,124,250,.65); margin:0 4px}
+nav .sendfab:active{transform:scale(.93)}
+
+/* MODAL */
+.modal-bg{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.6); backdrop-filter:blur(6px); display:flex; align-items:flex-end; justify-content:center}
+.modal{width:100%; max-width:480px; max-height:86dvh; overflow-y:auto; border-radius:30px 30px 0 0; padding:24px 22px 34px;
+  background:var(--bg2); border-top:1px solid var(--line2); animation:slideup .3s ease}
+@keyframes slideup{from{transform:translateY(60px); opacity:0}to{transform:translateY(0); opacity:1}}
+.modal h3{font-size:19px; margin-bottom:4px}
+.modal .mut{margin-bottom:18px}
+.field{margin-bottom:14px}
+.field label{display:block; font-size:11.5px; font-weight:700; color:var(--tx2); margin-bottom:7px; letter-spacing:.3px}
+.field input,.field select{width:100%; padding:15px 16px; border-radius:15px; border:1px solid var(--line2); background:var(--panel); color:var(--tx); font-family:inherit; font-size:15px; outline:none}
+.field input:focus{border-color:var(--acc)}
+.kp{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px}
+.kp button{padding:14px 4px; border-radius:14px; border:1px solid var(--line); background:var(--panel); color:var(--tx); font-family:inherit; font-size:14px; font-weight:700; cursor:pointer}
+.toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); z-index:60; padding:13px 20px; border-radius:16px; font-size:13px; font-weight:600;
+  background:rgba(20,26,42,.95); border:1px solid var(--line2); color:var(--tx); opacity:0; pointer-events:none; transition:.3s; box-shadow:0 16px 40px rgba(0,0,0,.5); max-width:90%; text-align:center}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+.chartbars{display:flex; align-items:flex-end; gap:7px; height:110px; padding-top:6px}
+.chartbars .cb{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px}
+.chartbars .cb i{width:100%; border-radius:8px 8px 3px 3px; background:linear-gradient(180deg,var(--acc),rgba(139,92,246,.4)); min-height:4px; transition:height .5s}
+.chartbars .cb.hl i{background:linear-gradient(180deg,var(--mint),rgba(46,230,168,.4))}
+.chartbars .cb small{font-size:9.5px; color:var(--tx3)}
+.chartbars .cb .cv{font-size:9.5px; color:var(--tx2); font-weight:700}
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0}
+.stat{padding:14px; border-radius:16px; background:var(--panel); border:1px solid var(--line)}
+.stat small{display:block; color:var(--tx3); font-size:10.5px; font-weight:700; letter-spacing:.5px; margin-bottom:5px}
+.stat b{font-size:18px; letter-spacing:-.4px}
+.tabbar{display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:2px}
+.tabbar::-webkit-scrollbar{display:none}
+.tabbar button{flex-shrink:0; padding:9px 16px; border-radius:99px; border:1px solid var(--line); background:var(--panel); color:var(--tx2); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer}
+.tabbar button.on{background:linear-gradient(135deg,var(--acc),var(--acc2)); color:#fff; border-color:transparent}
+.badge{position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px; border-radius:99px; background:var(--red); color:#fff; font-size:10px; font-weight:800; display:grid; place-items:center}
+.gigrow{display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--line)}
+.gigrow:last-child{border-bottom:none}
+.steps{display:flex; flex-direction:column; gap:12px}
+.steps .st{display:flex; gap:12px; align-items:flex-start}
+.steps .st .sn{width:26px; height:26px; border-radius:10px; flex-shrink:0; display:grid; place-items:center; font-size:12px; font-weight:800; color:#fff; background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.steps .st b{font-size:13.5px; display:block}
+.steps .st p{font-size:12px; color:var(--tx2); line-height:1.55; margin-top:2px}
+.warnbox{padding:14px 16px; border-radius:16px; font-size:13px; line-height:1.6; background:rgba(255,196,102,.1); border:1px solid rgba(255,196,102,.3); color:var(--gold); margin-bottom:14px}
+.okbox{padding:14px 16px; border-radius:16px; font-size:13px; line-height:1.6; background:rgba(46,230,168,.1); border:1px solid rgba(46,230,168,.3); color:var(--mint); margin-bottom:14px}
+.fc-line{display:flex; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); font-size:13px; line-height:1.55}
+.fc-line:last-child{border-bottom:none}
+.fc-line .fic{flex-shrink:0; font-size:16px}
+.fc-line b{color:var(--tx)}
+
+.bankcard.gold{background:linear-gradient(130deg,#2b2104,#7c6215 38%,#d4af37 68%,#5c4709); box-shadow:0 26px 50px -18px rgba(212,175,55,.45), inset 0 1px 0 rgba(255,255,255,.35)}
+.bankcard.gold::before{background:radial-gradient(400px 200px at 90% -20%, rgba(255,238,180,.6), transparent 60%)}
+
+.bubble{display:flex; gap:10px; margin-bottom:12px; align-items:flex-start}
+.bubble .bav{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;font-size:15px;flex-shrink:0;background:var(--panel2);border:1px solid var(--line)}
+.bubble .btxt{padding:12px 14px;border-radius:16px 16px 16px 4px;font-size:13.5px;line-height:1.55;background:var(--panel2);border:1px solid var(--line);color:var(--tx)}
+.bubble.me{flex-direction:row-reverse}
+.bubble.me .btxt{border-radius:16px 16px 4px 16px;background:linear-gradient(135deg,rgba(91,124,250,.25),rgba(139,92,246,.2));border-color:rgba(91,124,250,.4)}
+
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex-shrink:0;padding:8px 14px;border-radius:99px;border:1px solid var(--line2);background:var(--panel2);color:var(--tx2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+
+.bar{height:8px;border-radius:99px;background:var(--panel2);overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),#2ee6a8)}
+.check{color:#2ee6a8;font-weight:800}
+
+.easy-wrap{max-width:520px;margin:0 auto;padding:10px 18px 90px}
+.easy-hi{font-size:26px;font-weight:800;margin:6px 0 2px}
+.easy-bal{font-size:44px;font-weight:800;color:var(--acc);letter-spacing:-1px;margin:8px 0 2px}
+.easy-sub{color:var(--tx2);font-size:17px;margin-bottom:16px}
+.easy-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.easybtn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 10px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--tx);font-family:inherit;font-size:18px;font-weight:800;cursor:pointer}
+.easybtn em{font-style:normal;font-size:30px;line-height:1}
+.easy-sec{font-size:20px;font-weight:800;margin:16px 0 6px}
+.ezrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line2);font-size:17px}
+.ezrow b.amt{white-space:nowrap}
+.easylink{display:block;width:100%;margin:20px 0;padding:16px;border-radius:16px;border:1px dashed var(--line2);background:none;color:var(--tx2);font-family:inherit;font-size:16px;cursor:pointer}
+.ezopt{display:block;width:100%;margin:10px 0;padding:20px;border-radius:18px;border:1px solid var(--line2);background:var(--panel2);color:var(--tx);font-family:inherit;font-size:19px;font-weight:800;text-align:left;cursor:pointer}
+
+/* ELDER MODE */
+body.elder .screen{font-size:20px}
+body.elder .screen button{padding:20px 16px;font-size:19px}
+body.elder .bigbtn{padding:26px;font-size:26px}
+body.elder .screen input{font-size:20px;padding:18px 16px}
+body.elder .easybtn{padding:34px 18px}
+body.elder .easybtn em{font-size:46px}
+body.elder .easybtn span{font-size:24px}
+body.elder .easy-bal{font-size:46px}
+body.elder .easy-hi{font-size:30px}
+body.elder .rowline{padding:20px 0}
+body.elder .stat b{font-size:32px}
+.picks{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.picks .pick{padding:14px 18px;border-radius:14px;border:1px solid var(--line2);background:var(--panel2);color:var(--tx);font-weight:800;font-size:16px;cursor:pointer}
+.picks .pick.on{border-color:#2ee6a8;background:rgba(46,230,168,.12);color:#2ee6a8}
+body.elder .tiles{grid-template-columns:repeat(2,1fr)}
+body.elder .tiles button{padding:24px 6px}
+body.elder .tiles .ti{font-size:34px;width:64px;height:64px}
+/* HOME POLISH */
+.hero .row button{padding:15px 6px;font-size:14px;border-radius:16px}
+.tiles{margin:14px 0 4px}
+.tiles button{border-radius:20px}
+.tiles button:active{transform:scale(.97)}
+.tiles.t3{grid-template-columns:repeat(3,1fr)}
+.shead{margin:26px 0 10px}
+.shead h3{display:flex;align-items:center;gap:8px}
+.shead h3::before{content:'';width:8px;height:8px;border-radius:99px;background:var(--acc);flex:none}
+body.elder .shead h3::before{width:12px;height:12px}
+
+/* ===== Stack Premium v3: aurora, glass, professional icons ===== */
+:root{--gold:#f0c35b;--violet1:#6d5efc;--violet2:#a855f7;--stroke:rgba(255,255,255,.10);--glassA:rgba(255,255,255,.065);--glassB:rgba(255,255,255,.028)}
+body{background:radial-gradient(1100px 760px at 82% -12%,#1c1445 0%,transparent 60%),radial-gradient(950px 700px at -12% 108%,#0c2a3d 0%,transparent 55%),#05070d !important}
+body::before{content:"";position:fixed;inset:-22%;z-index:0;pointer-events:none;background:
+ radial-gradient(36% 30% at 22% 28%,rgba(109,94,252,.34),transparent 70%),
+ radial-gradient(30% 26% at 82% 18%,rgba(168,85,247,.26),transparent 70%),
+ radial-gradient(34% 30% at 58% 88%,rgba(240,195,91,.14),transparent 70%);
+ filter:blur(64px);animation:sbAur 26s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(75% 55% at 50% 4%,#000 0%,transparent 78%);mask-image:radial-gradient(75% 55% at 50% 4%,#000 0%,transparent 78%)}
+@keyframes sbAur{0%{transform:translate3d(-4%,-3%,0) scale(1) rotate(0deg)}50%{transform:translate3d(5%,4%,0) scale(1.16) rotate(4deg)}100%{transform:translate3d(-3%,5%,0) scale(1.05) rotate(-3deg)}}
+.hero,.card,.tile,.panel,.bigbtn,.icobtn,.weather{backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
+.hero,.card,.tile,.panel{background:linear-gradient(160deg,var(--glassA),var(--glassB)) !important;border:1px solid var(--stroke) !important;box-shadow:0 22px 60px -28px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.07)}
+.tile,.bigbtn,.icobtn{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s,border-color .28s}
+.tile:hover,.bigbtn:hover{transform:translateY(-3px);border-color:rgba(240,195,91,.45) !important;box-shadow:0 26px 60px -24px rgba(109,94,252,.45),inset 0 1px 0 rgba(255,255,255,.12)}
+button:active{transform:scale(.97)}
+.amt{background:linear-gradient(120deg,#ffffff 0%,#cfd0ff 45%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;color:transparent !important;text-shadow:none}
+.logo{background:linear-gradient(135deg,var(--gold),#b8860b) !important;box-shadow:0 0 0 1px rgba(240,195,91,.5),0 8px 30px -6px rgba(240,195,91,.45);color:#171200}
+.shead h3{letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;color:rgba(234,234,242,.75)}
+.demo-chip{background:linear-gradient(120deg,rgba(240,195,91,.2),rgba(240,195,91,.06)) !important;border:1px solid rgba(240,195,91,.4)}
+.se{display:inline-flex;vertical-align:-0.17em;margin:0 .1em;line-height:1}
+.se .sic{width:1.08em;height:1.08em;display:block;filter:drop-shadow(0 0 6px rgba(109,94,252,.35))}
+.icobtn .se .sic{width:1.25em;height:1.25em}
+body.elder .se .sic{width:1.3em;height:1.3em}
+@media (prefers-reduced-motion:reduce){body::before{animation:none}}
+</style>
+<style>
+
+/* ================= STACK BANK — PREMIUM v4 =================
+   Animated living background + professional animated SVG icons
+   + gold / violet / mint glass system. Overrides the basic theme. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  --gold:#f0c35b; --gold2:#e9a93b; --violet:#6d5efc; --violet2:#a855f7;
+  --mint:#2ee6a8; --ink:#05070d; --glass:rgba(255,255,255,.06);
+  --stroke:rgba(255,255,255,.11); --stroke-gold:rgba(240,195,91,.45);
+}
+html{scroll-behavior:smooth}
+body{
+  background:#05070d !important;
+  font-family:'Sora','Inter',system-ui,sans-serif !important;
+}
+/* ---------- LIVING ANIMATED BACKGROUND ---------- */
+.sb-bg{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none}
+.sb-bg canvas{position:absolute; inset:0; width:100%; height:100%; opacity:.9}
+.sb-blob{position:absolute; border-radius:50%; filter:blur(70px); will-change:transform,opacity; mix-blend-mode:screen}
+.sb-b1{width:58vmax;height:58vmax;left:-18%;top:-22%;background:radial-gradient(circle at 35% 35%,rgba(109,94,252,.55),rgba(109,94,252,0) 65%);animation:blob1 26s ease-in-out infinite alternate}
+.sb-b2{width:46vmax;height:46vmax;right:-14%;top:6%;background:radial-gradient(circle at 60% 40%,rgba(168,85,247,.48),rgba(168,85,247,0) 65%);animation:blob2 32s ease-in-out infinite alternate}
+.sb-b3{width:52vmax;height:52vmax;left:22%;bottom:-32%;background:radial-gradient(circle at 50% 50%,rgba(46,230,168,.28),rgba(46,230,168,0) 65%);animation:blob3 28s ease-in-out infinite alternate}
+.sb-b4{width:34vmax;height:34vmax;right:18%;bottom:8%;background:radial-gradient(circle at 50% 50%,rgba(240,195,91,.32),rgba(240,195,91,0) 65%);animation:blob4 22s ease-in-out infinite alternate}
+.sb-b5{width:22vmax;height:22vmax;left:38%;top:28%;background:radial-gradient(circle at 50% 50%,rgba(91,124,250,.35),rgba(91,124,250,0) 65%);animation:blob1 36s ease-in-out infinite alternate-reverse}
+@keyframes blob1{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(9vw,6vh,0) scale(1.18) rotate(8deg)}100%{transform:translate3d(-4vw,10vh,0) scale(.94) rotate(-6deg)}}
+@keyframes blob2{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-8vw,9vh,0) scale(1.22)}100%{transform:translate3d(5vw,-5vh,0) scale(1.05)}}
+@keyframes blob3{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(7vw,-7vh,0) scale(1.15)}100%{transform:translate3d(-6vw,4vh,0) scale(.96)}}
+@keyframes blob4{0%{transform:translate3d(0,0,0) scale(1);opacity:.9}50%{transform:translate3d(-6vw,-8vh,0) scale(1.25);opacity:1}100%{transform:translate3d(4vw,6vh,0) scale(1);opacity:.75}}
+.sb-beam{position:absolute; left:50%; top:-30%; width:140vmax; height:140vmax; transform:translateX(-50%);
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(109,94,252,.10) 40deg,transparent 90deg,rgba(240,195,91,.09) 170deg,transparent 230deg,rgba(46,230,168,.08) 300deg,transparent 360deg);
+  animation:spinBeam 48s linear infinite; filter:blur(10px)}
+@keyframes spinBeam{to{transform:translateX(-50%) rotate(360deg)}}
+.sb-grid{position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px); background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(80% 60% at 50% 0%,#000 0%,transparent 78%); mask-image:radial-gradient(80% 60% at 50% 0%,#000 0%,transparent 78%); animation:gridDrift 18s linear infinite}
+@keyframes gridDrift{to{background-position:0 44px,44px 0}}
+.sb-noise{position:absolute; inset:0; opacity:.05; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E")}
+.sb-vignette{position:absolute; inset:0; background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.sb-orb{position:absolute; width:10px; height:10px; border-radius:50%; background:var(--gold); box-shadow:0 0 18px 4px rgba(240,195,91,.55); animation:orbFloat 9s ease-in-out infinite}
+.sb-orb.o2{left:12%; top:62%; background:#8b5cf6; box-shadow:0 0 18px 4px rgba(139,92,246,.55); animation-delay:-3s}
+.sb-orb.o3{left:82%; top:58%; background:#2ee6a8; box-shadow:0 0 18px 4px rgba(46,230,168,.5); animation-delay:-6s}
+.sb-orb.o1{left:68%; top:18%}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-26px)}}
+body::before,body::after{display:none !important}
+#app,.onboard{position:relative; z-index:1}
+/* ---------- PREMIUM TYPE & SURFACES ---------- */
+.brand b{font-size:17px; letter-spacing:-.3px}
+.brand small{color:#aab2c8}
+.logo{
+  background:linear-gradient(135deg,#f7d774,#e9a93b 45%,#8a5a00) !important; color:#171200 !important;
+  box-shadow:0 0 0 1px rgba(240,195,91,.55),0 10px 28px -8px rgba(240,195,91,.55),inset 0 1px 0 rgba(255,255,255,.7) !important;
+  position:relative; overflow:hidden}
+.logo::after{content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.75) 50%,transparent 70%); transform:translateX(-120%); animation:logoShine 4.5s ease-in-out infinite}
+@keyframes logoShine{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+.demo-chip{
+  background:linear-gradient(120deg,rgba(240,195,91,.22),rgba(240,195,91,.06)) !important;
+  border:1px solid rgba(240,195,91,.45) !important; color:#ffe1a1 !important;
+  box-shadow:0 0 20px rgba(240,195,91,.18)}
+.demo-chip::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); animation:dotPulse 1.6s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:.55}}
+/* Hero — living gradient, not a flat block */
+.hero{
+  background:linear-gradient(125deg,#5b7cfa,#7c5cff 38%,#a855f7 62%,#2ee6a8 135%) !important;
+  background-size:220% 220% !important; animation:heroFlow 12s ease infinite !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+  box-shadow:0 30px 60px -20px rgba(109,94,252,.65),inset 0 1px 0 rgba(255,255,255,.35) !important;
+  overflow:hidden}
+@keyframes heroFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.hero::before{content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%); background-size:250% 100%; animation:heroSweep 5s ease-in-out infinite; pointer-events:none}
+@keyframes heroSweep{0%{background-position:180% 0}100%{background-position:-80% 0}}
+.hero .amt{
+  background:linear-gradient(100deg,#fff 20%,#ffe9b0 55%,#fff 80%) !important;
+  background-size:200% 100% !important; -webkit-background-clip:text !important; background-clip:text !important;
+  color:transparent !important; animation:amtShine 4s linear infinite; filter:drop-shadow(0 4px 18px rgba(0,0,0,.25))}
+@keyframes amtShine{to{background-position:200% 0}}
+.hero .row button{transition:transform .2s,background .2s}
+.hero .row button:hover{background:rgba(255,255,255,.28); transform:translateY(-2px)}
+/* Glass cards — gradient border, inner light */
+.card,.tiles button,.chip-toggle,.stat,.easybtn{
+  background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.028)) !important;
+  border:1px solid var(--stroke) !important;
+  box-shadow:0 18px 44px -22px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.08) !important;
+  backdrop-filter:blur(18px) saturate(150%); -webkit-backdrop-filter:blur(18px) saturate(150%)}
+.tiles button{transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .28s,box-shadow .28s}
+.tiles button:hover{transform:translateY(-4px); border-color:rgba(240,195,91,.5) !important; box-shadow:0 24px 44px -18px rgba(109,94,252,.55),inset 0 1px 0 rgba(255,255,255,.14)}
+.tiles button:active{transform:scale(.96)}
+.shead h3{letter-spacing:.1em; text-transform:uppercase; font-size:.72rem; color:rgba(234,234,242,.78)}
+.shead h3::before{background:linear-gradient(90deg,var(--gold),var(--violet)); box-shadow:0 0 10px rgba(240,195,91,.7); animation:dotPulse 2s ease-in-out infinite}
+/* ---------- PROFESSIONAL ANIMATED ICONS — never static emoji ---------- */
+.se{display:inline-flex; align-items:center; justify-content:center; vertical-align:-.18em; line-height:0}
+.se .sic,.sic{width:1.12em; height:1.12em; display:block; stroke-width:1.8;
+  filter:drop-shadow(0 0 7px rgba(109,94,252,.35)); transition:transform .25s ease,filter .25s ease}
+.tiles .ti .sic{width:1.35em; height:1.35em}
+.tiles button:hover .sic{transform:translateY(-2px) scale(1.12) rotate(-4deg); filter:drop-shadow(0 0 10px rgba(240,195,91,.6))}
+.icobtn .sic{width:1.3em; height:1.3em}
+.icobtn:hover .sic{transform:scale(1.12)}
+button:hover .se .sic{transform:scale(1.1)}
+.avatar .sic{width:1.25em; height:1.25em}
+.logo .sic{width:1.3em; height:1.3em}
+nav .sic{width:1.35em; height:1.35em}
+nav button.on .sic{filter:drop-shadow(0 0 10px rgba(240,195,91,.7))}
+.bigbtn .sic{width:1.15em; height:1.15em}
+/* icon micro-motion: bell swings, sparkle twinkles, shield breathes */
+.se[data-ic="bell"] .sic{transform-origin:top center}
+.icobtn:hover .se[data-ic="bell"] .sic{animation:bellSwing .7s ease-in-out}
+@keyframes bellSwing{0%,100%{transform:rotate(0)}25%{transform:rotate(14deg)}60%{transform:rotate(-10deg)}}
+.se[data-ic="spark"] .sic{animation:sparkTw 2.4s ease-in-out infinite}
+@keyframes sparkTw{0%,100%{transform:scale(1) rotate(0); opacity:1}50%{transform:scale(1.18) rotate(18deg); opacity:.85}}
+.se[data-ic="shield"] .sic{animation:shieldBreath 3s ease-in-out infinite}
+@keyframes shieldBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+/* Icon chips — gradient, not flat colour blocks */
+.tiles .ti,.avatar,.jemoji,.bav{
+  background:linear-gradient(135deg,rgba(109,94,252,.28),rgba(240,195,91,.18)) !important;
+  border:1px solid rgba(255,255,255,.14) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+/* Buttons — gold/violet gradient + travelling shine */
+.bigbtn{
+  background:linear-gradient(135deg,#6d5efc,#a855f7 55%,#e9a93b 130%) !important;
+  position:relative; overflow:hidden; transition:transform .2s,box-shadow .25s}
+.bigbtn::after{content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%); transform:translateX(-120%); transition:transform .7s ease}
+.bigbtn:hover::after{transform:translateX(120%)}
+.bigbtn:hover{transform:translateY(-2px); box-shadow:0 20px 40px -12px rgba(139,92,246,.6)}
+.bigbtn.gold{background:linear-gradient(135deg,#f7d774,#ff8a3d) !important; color:#241a00 !important}
+.bigbtn.ghost{background:rgba(255,255,255,.06) !important; border:1px solid var(--stroke) !important}
+/* Bank card — holographic foil + tilt shine */
+.bankcard{
+  background:linear-gradient(130deg,#171b2e,#232a4a 42%,#0d1017 78%,#2a1e4d) !important;
+  transform-style:preserve-3d; transition:transform .25s ease,box-shadow .25s ease; will-change:transform}
+.bankcard::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(420px 180px at var(--mx,80%) var(--my,10%),rgba(255,255,255,.22),transparent 60%),
+  linear-gradient(115deg,transparent 38%,rgba(240,195,91,.20) 50%,transparent 62%); background-size:100% 100%,250% 100%;
+  animation:cardSweep 6s ease-in-out infinite}
+@keyframes cardSweep{0%{background-position:0 0,180% 0}100%{background-position:0 0,-80% 0}}
+.bankcard .num4{font-family:'Inter',monospace; letter-spacing:3px; text-shadow:0 2px 14px rgba(0,0,0,.4)}
+/* Nav — floating premium pill */
+nav{background:rgba(12,16,30,.78) !important; backdrop-filter:blur(24px) saturate(160%); border:1px solid rgba(255,255,255,.14) !important; box-shadow:0 24px 50px -18px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.1) !important}
+nav button.on{color:#ffe1a1}
+nav .sendfab{background:linear-gradient(135deg,#f0c35b,#a855f7) !important; box-shadow:0 16px 34px -10px rgba(240,195,91,.6),0 0 0 1px rgba(255,255,255,.25) inset !important; position:relative; overflow:hidden}
+nav .sendfab::after{content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.5) 50%,transparent 70%); transform:translateX(-120%); animation:logoShine 3.8s ease-in-out infinite}
+/* Onboarding — same living background */
+.onboard{background:radial-gradient(1000px 600px at 50% -20%,rgba(109,94,252,.38),transparent 60%),#05070d !important}
+.onboard .orb{filter:blur(70px); opacity:.55}
+.onb-card{background:linear-gradient(180deg,rgba(16,20,38,.72),rgba(7,9,15,.94)) !important; backdrop-filter:blur(22px); border:1px solid var(--stroke)}
+.onb-card h1 em{background:linear-gradient(90deg,#f0c35b,#a855f7,#2ee6a8); -webkit-background-clip:text; background-clip:text; color:transparent}
+/* Pills, bars, modal, toast */
+.pill.mint{box-shadow:0 0 14px rgba(46,230,168,.15)}
+.bar i,.jar .bar i{background:linear-gradient(90deg,#6d5efc,#a855f7,#f0c35b) !important; background-size:200% 100%; animation:barFlow 3s linear infinite}
+@keyframes barFlow{to{background-position:200% 0}}
+.modal{box-shadow:0 -20px 60px rgba(0,0,0,.6)}
+.toast{background:rgba(16,20,38,.96) !important; border:1px solid rgba(240,195,91,.4) !important; box-shadow:0 18px 44px rgba(0,0,0,.6),0 0 24px rgba(240,195,91,.12)}
+.switch.on{background:linear-gradient(90deg,#6d5efc,#a855f7,#e9a93b) !important}
+input[type=range]{accent-color:#e9a93b}
+@media (prefers-reduced-motion:reduce){
+  .sb-blob,.sb-beam,.sb-grid,.hero,.hero::before,.logo::after,.bankcard::after,.bar i,.jar .bar i{animation:none !important}
+  #sbCanvas{display:none}
+}
+
+</style>
+<style>
+
+/* ===== Stack Premium v5 — ladder hero + edge states ===== */
+#ladderHero{background:linear-gradient(155deg,rgba(246,196,83,.10),rgba(124,108,255,.10) 55%,rgba(46,230,168,.07)) !important;border:1px solid rgba(246,196,83,.35) !important}
+.lh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lh-kicker{font-size:10.5px;font-weight:800;letter-spacing:1.4px;color:#ffd98a}
+.lh-salary{font-size:34px;font-weight:800;letter-spacing:-1px;margin:4px 0 2px}
+.lh-salary small{font-size:13px;font-weight:600;color:var(--tx2);letter-spacing:0}
+.splitbar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.09);margin:14px 0 10px}
+.splitbar i{display:block;height:100%}
+.seg-salary{background:linear-gradient(90deg,#f6c453,#e08a2e)}
+.seg-buffer{background:linear-gradient(90deg,#7c6cff,#a855f7)}
+.seg-jars{background:linear-gradient(90deg,#2ee6a8,#2bb5d6)}
+.seg-spend{background:rgba(255,255,255,.25)}
+.lh-legend{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;font-size:12.5px;color:var(--tx2)}
+.lh-legend b{color:var(--tx)}
+.lh-dot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:6px}
+.lh-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--tx2)}
+.lh-btns{display:flex;gap:10px;margin-top:14px}
+.lh-btns .bigbtn{padding:13px 10px;font-size:13.5px}
+
+</style>
+</head>
+<body>
+
+<div class="sb-bg" aria-hidden="true">
+  <div class="sb-beam"></div>
+  <div class="sb-blob sb-b1"></div><div class="sb-blob sb-b2"></div><div class="sb-blob sb-b3"></div>
+  <div class="sb-blob sb-b4"></div><div class="sb-blob sb-b5"></div>
+  <div class="sb-grid"></div>
+  <canvas id="sbCanvas"></canvas>
+  <div class="sb-orb o1"></div><div class="sb-orb o2"></div><div class="sb-orb o3"></div>
+  <div class="sb-noise"></div><div class="sb-vignette"></div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="onboard" id="onboard">
+  <div class="orb" style="width:240px;height:240px;background:#5b7cfa;top:12%;left:-60px"></div>
+  <div class="orb" style="width:200px;height:200px;background:#2ee6a8;bottom:30%;right:-50px;animation-delay:-4s"></div>
+  <div class="orb" style="width:160px;height:160px;background:#8b5cf6;top:40%;right:30%;animation-delay:-2s"></div>
+  <div class="onb-card">
+    <div class="dots" id="dots"><span class="on"></span><span></span><span></span></div>
+    <div id="onbStep">
+      <h1>Banking built<br>for <em>how you<br>actually earn</em></h1>
+      <p>Open your account in under 60 seconds: a phone number and ID, no branch, no paperwork. Then the engine takes over: steady paycheck, late-payer shield, multi-currency, investing, savings on autopilot.</p>
+      <button class="bigbtn" onclick="onbNext()">Open my account · under 60 seconds</button>
+    </div>
+    <div id="kyc" class="hide">
+      <h1 style="font-size:26px">Almost there</h1>
+      <p>Verify once. In the live version this is a regulated ID check; here it is instant.</p>
+      <div class="kyc" style="margin-bottom:18px"><span>🪪</span><div class="bar"><i></i></div><b style="font-size:12px">38%</b></div>
+      <button class="bigbtn" onclick="finishOnboard()">Finish verification</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="hide">
+<main>
+<!-- HOME -->
+<section class="screen" id="s-home">
+  <div class="head">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div><small>Good evening, Ava</small><b>Your Stack</b></div>
+    </div>
+    <div class="acts">
+      <button class="icobtn" onclick="go('notifs')">🔔<span class="dot" id="notifDot"></span></button>
+      <button class="icobtn" onclick="go('settings')">⚙️</button>
+    </div>
+  </div>
+  <div class="demo-chip">DEMO</div>
+  <div class="hero">
+    <small>Available to spend</small>
+    <div class="amt">$<span id="balHome">0</span></div>
+    <small id="ladderLine"></small>
+    <div class="row">
+      <button onclick="go('add')">⬆️ Add cash</button>
+      <button onclick="go('send')">↗️ Send</button>
+      <button onclick="go('jars')">🍯 Jars</button>
+      <button onclick="go('bot')">💬 Bot</button>
+    </div>
+    <button class="weather" onclick="go('weather')"><span class="w-ic" id="wIc">🌤</span><span id="weatherMini"></span></button>
+    <div class="dim" id="cashHome" style="margin-top:8px"></div>
+  </div>
+  <div class="card" id="ladderHero" style="margin-top:14px"></div>
+  <button class="bigbtn ghost" style="margin-top:14px" onclick="easyOn()">👵 Switch to Easy Home · biggest buttons</button>
+
+  <div class="shead" style="margin-top:6px"><h3>Daily money</h3></div>
+  <div class="tiles">
+    <button onclick="go('card')"><span class="ti" style="background:rgba(91,124,250,.18)">💳</span><small>Card</small></button>
+    <button onclick="go('topup')"><span class="ti" style="background:rgba(255,179,92,.18)">📲</span><small>Airtime</small></button>
+    <button onclick="go('bills')"><span class="ti" style="background:rgba(255,210,92,.18)">💡</span><small>Bills</small></button>
+    <button onclick="go('offline')"><span class="ti" style="background:rgba(43,181,214,.18)">📶</span><small>Offline pay</small></button>
+    <button onclick="go('bot')"><span class="ti" style="background:rgba(124,92,255,.18)">💬</span><small>Chat bot</small></button>
+    <button onclick="easyOn()"><span class="ti" style="background:rgba(255,122,184,.18)">👵</span><small>Easy home</small></button>
+    <button onclick="go('security')"><span class="ti" style="background:rgba(46,230,168,.16)">🔒</span><small>Security</small></button>
+    <button onclick="go('activity')"><span class="ti" style="background:rgba(150,160,180,.16)">🧾</span><small>Activity</small></button>
+  </div>
+
+  <div class="shead"><h3>Grow your money</h3></div>
+  <div class="tiles t3">
+    <button onclick="go('pot')"><span class="ti" style="background:rgba(92,255,179,.16)">🏦</span><small>Stack Pot</small></button>
+    <button onclick="go('jars')"><span class="ti" style="background:rgba(255,196,102,.18)">🍯</span><small>Jars</small></button>
+    <button onclick="go('circles')"><span class="ti" style="background:rgba(91,124,250,.18)">🤝</span><small>Ajo circles</small></button>
+    <button onclick="go('invest')"><span class="ti" style="background:rgba(46,230,168,.16)">📈</span><small>Invest</small></button>
+    <button onclick="go('crypto')"><span class="ti" style="background:rgba(255,196,102,.16)">₿</span><small>Crypto</small></button>
+    <button onclick="go('fx')"><span class="ti" style="background:rgba(124,92,255,.18)">🌐</span><small>Currency</small></button>
+  </div>
+
+  <div class="shead"><h3>Work &amp; income</h3></div>
+  <div class="tiles t3">
+    <button onclick="go('gigs')"><span class="ti" style="background:rgba(46,230,168,.16)">🛴</span><small>Gigs</small></button>
+    <button onclick="go('ladder')"><span class="ti" style="background:rgba(91,124,250,.18)">💵</span><small>Pay ladder</small></button>
+    <button onclick="go('shield')"><span class="ti" style="background:rgba(255,107,107,.16)">🛡</span><small>Late shield</small></button>
+    <button onclick="go('remit')"><span class="ti" style="background:rgba(255,122,184,.16)">🌍</span><small>Remit</small></button>
+    <button onclick="go('machines')"><span class="ti" style="background:rgba(157,92,255,.18)">🤖</span><small>Machines</small></button>
+    <button onclick="go('weather')"><span class="ti" style="background:rgba(43,181,214,.18)">🌤</span><small>Pay forecast</small></button>
+  </div>
+
+  <div class="shead"><h3>Bank controls</h3></div>
+  <div class="tiles">
+    <button onclick="go('id')"><span class="ti" style="background:rgba(43,181,214,.18)">🪪</span><small>Verify once</small></button>
+    <button onclick="go('rules')"><span class="ti" style="background:rgba(150,160,180,.16)">⚙️</span><small>Money rules</small></button>
+    <button onclick="go('notifs')"><span class="ti" style="background:rgba(255,196,102,.18)">🔔</span><small>Alerts</small></button>
+    <button onclick="go('more')"><span class="ti" style="background:rgba(150,160,180,.16)">⋯</span><small>More</small></button>
+  </div>
+  <div class="shead"><h3>Recent activity</h3><button onclick="go('activity')">See all</button></div>
+  <div class="card tight" id="txHome"></div>
+</section>
+
+<!-- PAYCHECK LADDER -->
+<section class="screen hide" id="s-ladder">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2ee6a8,#2bb5d6)">💵</div><div><small>Income smoothing</small><b>Paycheck ladder</b></div></div></div>
+  <div class="okbox" id="ladderState"></div>
+  <div class="card">
+    <div class="flex"><div><b style="font-size:14px">Turn on your ladder</b><div class="dim">Get a steady paycheck every Friday</div></div><div class="switch" id="ladderSwitch" onclick="toggleLadder()"></div></div>
+    <div class="sliderrow" style="margin-top:16px">
+      <label>Weekly salary <b id="ladderWeeklyLbl">$250</b></label>
+      <input type="range" id="ladderWeekly" min="100" max="1200" step="25" value="250" oninput="ladderWeeklyLbl.textContent='$'+this.value">
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><small>LADDER RESERVE</small><b>$<span id="ladderReserve">0</span></b></div>
+      <div class="stat"><small>NEXT PAYDAY</small><b id="ladderNext" style="font-size:14px">Friday</b></div>
+    </div>
+    <button class="bigbtn ghost" onclick="runPayday()">▶ Run a demo payday</button>
+  </div>
+  <div class="card">
+    <div class="shead" style="margin:0 0 14px"><h3 style="font-size:14px">How it works</h3></div>
+    <div class="steps">
+      <div class="st"><div class="sn">1</div><div><b>Good weeks fill the reserve</b><p>Earnings above your rolling average sweep into the reserve automatically.</p></div></div>
+      <div class="st"><div class="sn">2</div><div><b>Bad weeks don't hurt</b><p>Every Friday you're paid exactly your salary, funded first from the reserve.</p></div></div>
+      <div class="st"><div class="sn">3</div><div><b>Bills get paid first</b><p>Upcoming bills are held back from the sweep so rent and phone never miss.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LATE-PAYER SHIELD -->
+<section class="screen hide" id="s-shield">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ff7ab8,#8b5cf6)">🛡</div><div><small>Get paid on time</small><b>Late-payer shield</b></div></div></div>
+  <div class="okbox">🛡 Coverage is on for every invoice you log. If a client pays late, we pay you within an hour and chase them for it. 0% fee during pilot.</div>
+  <div class="stat-grid">
+    <div class="stat"><small>COVERED THIS MONTH</small><b>$<span id="shieldCovered">0</span></b></div>
+    <div class="stat"><small>RECOVERED</small><b class="pos">$<span id="shieldRecovered">0</span></b></div>
+  </div>
+  <div class="shead"><h3>Your invoices</h3><button onclick="addInvoice()">+ Log one</button></div>
+  <div class="card tight" id="invoiceList"></div>
+</section>
+
+<!-- SALARY WEATHER -->
+<section class="screen hide" id="s-weather">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ffc466,#ff8a3d)">🌤</div><div><small>Plain-English forecast</small><b>Salary weather</b></div></div></div>
+  <div class="card">
+    <div class="chartbars" id="fcChart"></div>
+    <div class="dim" style="margin-top:8px">Last 6 weeks of earnings · blue = past, green = this week</div>
+  </div>
+  <div class="card tight" id="fcLines"></div>
+  <button class="bigbtn" onclick="go('jars')">Prepare my week</button>
+</section>
+
+<!-- BANK BOT -->
+<section class="screen hide" id="s-bot">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2ee6a8,#5b7cfa)">💬</div><div><small>Bank from anywhere</small><b>Stack Chat bot</b></div></div></div>
+  <div class="card">
+    <div class="dim" style="margin-bottom:10px">Linked channels</div>
+    <div class="tabbar" id="botChannels" style="margin-bottom:0"></div>
+    <div class="okbox" style="margin:12px 0 0">🔐 The bot is the hands, your phone is the vault. It never holds a password or PIN. Money moves only when you approve on this device.</div>
+  </div>
+  <div class="card tight" id="botBox" style="min-height:240px"></div>
+  <div class="flex" style="gap:8px">
+    <input id="botInput" placeholder="Try: send 50 to @mike" style="flex:1;padding:14px 16px;border-radius:16px;border:1px solid var(--line2);background:var(--panel);color:var(--tx);font-family:inherit;font-size:14px;outline:none" onkeydown="if(event.key==='Enter')botSend()">
+    <button class="icobtn" style="width:48px;height:48px;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none" onclick="botSend()">➤</button>
+  </div>
+  <div class="dim" style="margin-top:10px">Try: balance · send 50 to @mike · withdraw 100 · how is this week · help</div>
+</section>
+
+<!-- CARD -->
+<section class="screen hide" id="s-card">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#334, #557)">💳</div><div><small>Stack card</small><b>Virtual & physical</b></div></div></div>
+  <div class="bankcard" id="bankCard">
+    <div class="row1"><b style="font-size:15px">Stack</b><span class="wifi">📶</span></div>
+    <div class="num4" id="cardNum">•••• •••• •••• 4821</div>
+    <div class="row2">
+      <div><div class="lbl">Card holder</div><div class="val">Ava Stack</div></div>
+      <div><div class="lbl">Expires</div><div class="val">04/29</div></div>
+      <div style="font-weight:800;font-size:17px">VISA</div>
+    </div>
+  </div>
+  <div class="card-actions">
+    <button class="bigbtn ghost" onclick="freezeCard()" id="freezeBtn">❄️ Freeze</button>
+    <button class="bigbtn ghost" onclick="revealCard()">👁 Reveal</button>
+  </div>
+  <div class="card">
+    <div class="chip-toggle" onclick="toggleChip('roundups',this)"><div><b style="font-size:14px">Round-ups</b><div class="dim">Round every purchase into a jar</div></div><div class="switch on"></div></div>
+    <div class="chip-toggle" style="margin-top:10px" onclick="toggleChip('online',this)"><div><b style="font-size:14px">Online purchases only</b><div class="dim">Block in-store if the card leaks</div></div><div class="switch"></div></div>
+    <div class="chip-toggle" style="margin-top:10px" onclick="toggleChip('intl',this)"><div><b style="font-size:14px">International use</b><div class="dim">Spend and withdraw abroad</div></div><div class="switch on"></div></div>
+  </div>
+  <div class="card">
+    <div class="sliderrow"><label>Purchase limit <b id="limLbl">$500</b></label><input type="range" min="100" max="2000" step="50" value="500" oninput="limLbl.textContent='$'+this.value"></div>
+  </div>
+  <div class="card" id="goldCard">
+    <div class="flex"><div><b style="font-size:14px">Stack Gold</b><div class="dim" id="goldSub">Premium metal · works in 190+ countries</div></div><button class="pill gold" id="goldPill" onclick="upgradeGold()">Upgrade · free</button></div>
+    <div class="hide" id="goldPerks" style="margin-top:12px">
+      <div class="rowline"><div class="avatar">🏧</div><div class="grow"><b>Withdraw anywhere</b><div class="dim">Local currency at any ATM, 190+ countries</div></div><button class="pill blue" onclick="withdrawWorld()">Go</button></div>
+      <div class="rowline"><div class="avatar">💱</div><div class="grow"><b>0% FX fee</b><div class="dim">Real exchange rate, no markup</div></div></div>
+      <div class="rowline"><div class="avatar">🏧</div><div class="grow"><b>$0 ATM fees worldwide</b><div class="dim">Cash abroad at cost</div></div></div>
+      <div class="rowline"><div class="avatar">🛎</div><div class="grow"><b>Lounge & concierge</b><div class="dim">Airport lounges included</div></div></div>
+    </div>
+  </div>
+  <button class="bigbtn gold" onclick="orderPhysical()">📦 Order physical card · free</button>
+</section>
+
+<!-- JARS -->
+<section class="screen hide" id="s-jars">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2ee6a8,#5b7cfa)">🍯</div><div><small>Savings</small><b>Your jars</b></div></div></div>
+  <div class="card tight" id="jarList"></div>
+  <div class="grid3" style="margin:14px 0">
+    <button onclick="autoSave()">🤖 Auto-save</button>
+    <button onclick="newJar()">➕ New jar</button>
+    <button onclick="toast('Goal lock on. Withdrawals need 24h notice.')">🔒 Lock goals</button>
+  </div>
+  <div class="card">
+    <div class="sliderrow"><label>Save <b id="pctLbl">10%</b> of every payout</label><input type="range" id="autoPct" min="0" max="50" step="5" value="10" oninput="S.autoPct=+this.value;pctLbl.textContent=this.value+'%';save()"></div>
+    <div class="dim">Every gig payout is split automatically before you can touch it.</div>
+  </div>
+  <div class="warnbox">🤖 Auto-save is on: we move $2 to Rent every day at 9am, adjusted for what you earn that day.</div>
+</section>
+
+<!-- SEND -->
+<section class="screen hide" id="s-send">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#5b7cfa,#8b5cf6)">↗️</div><div><small>Transfer</small><b>Send money</b></div></div></div>
+  <div class="card">
+    <div class="field"><label>TO</label><input id="sendTo" placeholder="@name, phone or account"></div>
+    <div class="field"><label>AMOUNT</label><input id="sendAmt" type="number" placeholder="0.00" inputmode="decimal"></div>
+    <div class="flex" style="margin:4px 0 14px"><span class="mut">Fee</span><span class="num" style="font-size:16px">$2.99</span></div>
+    <div class="flex" style="margin-bottom:14px"><span class="mut">Banks typically charge</span><span class="dim">$9.07</span></div>
+    <button class="bigbtn" onclick="doSend()">Send now</button>
+    <div class="dim" style="text-align:center;margin-top:10px">Sends land instantly, even to someone new. Fraud checks run quietly in the background, never in your way.</div>
+  </div>
+</section>
+
+<!-- GIGS -->
+<section class="screen hide" id="s-gigs">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2ee6a8,#2bb5d6)">🛴</div><div><small>Income autopilot</small><b>Gigs</b></div></div></div>
+  <div class="card">
+    <div class="flex"><div><b style="font-size:14px">Auto cash-out</b><div class="dim">Every payout lands in Stack instantly</div></div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+  </div>
+  <div class="card tight" id="gigList"></div>
+</section>
+
+<!-- CRYPTO -->
+<section class="screen hide" id="s-crypto">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ffc466,#ff5d73)">₿</div><div><small>1% flat · every coin</small><b>Crypto</b></div></div></div>
+  <div class="card tight" id="coinList"></div>
+</section>
+
+<!-- ACTIVITY -->
+<section class="screen hide" id="s-activity">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#8b5cf6,#5b7cfa)">📋</div><div><small>History</small><b>Activity</b></div></div></div>
+  <div class="tabbar">
+    <button class="on" onclick="filterTx('all',this)">All</button>
+    <button onclick="filterTx('in',this)">Money in</button>
+    <button onclick="filterTx('out',this)">Money out</button>
+    <button onclick="filterTx('gig',this)">Gigs</button>
+  </div>
+  <div class="card tight" id="txAll"></div>
+  <div class="card tight hide" id="weeklySum"></div>
+</section>
+
+<!-- BILLS -->
+<section class="screen hide" id="s-bills">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ff7ab8,#ff5d73)">🧾</div><div><small>Never miss one</small><b>Bills</b></div></div></div>
+  <div class="card tight" id="billList"></div>
+</section>
+
+<!-- REMIT -->
+<section class="screen hide" id="s-remit">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2bb5d6,#5b7cfa)">🌍</div><div><small>Home is one tap away</small><b>Remittances</b></div></div></div>
+  <div class="card">
+    <div class="field"><label>COUNTRY</label><select id="remitCountry" onchange="updRemit()"><option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>UK</option><option>Mexico</option></select></div>
+    <div class="field"><label>YOU SEND</label><input id="remitAmt" type="number" value="100" inputmode="decimal" oninput="updRemit()"></div>
+    <div class="flex"><span class="mut">They receive</span><b class="num" id="remitOut" style="font-size:20px"></b></div>
+    <button class="bigbtn" style="margin-top:16px" onclick="doRemit()">Send it home</button>
+  </div>
+</section>
+
+<!-- ADD CASH -->
+<section class="screen hide" id="s-add">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2ee6a8,#2bb5d6)">⬆️</div><div><small>Fund your Stack</small><b>Add cash</b></div></div></div>
+  <div class="card tight" id="addList"></div>
+</section>
+
+<!-- NOTIFS -->
+<section class="screen hide" id="s-notifs">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#5b7cfa,#2ee6a8)">🔔</div><div><small>Notifications</small><b>Your alerts</b></div></div></div>
+  <div class="card tight" id="notifList"></div>
+</section>
+
+<!-- ASK STACK -->
+<section class="screen hide" id="s-ask">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#8b5cf6,#ff7ab8)">✨</div><div><small>AI assistant</small><b>Ask Stack</b></div></div></div>
+  <div class="card tight" id="chatBox" style="min-height:300px"></div>
+  <div class="flex" style="gap:8px">
+    <input id="askInput" placeholder="Ask about your money…" style="flex:1;padding:14px 16px;border-radius:16px;border:1px solid var(--line2);background:var(--panel);color:var(--tx);font-family:inherit;font-size:14px;outline:none">
+    <button class="icobtn" style="width:48px;height:48px;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none" onclick="askStack()">➤</button>
+  </div>
+  <div class="chips"><button onclick="askChip('How much can I spend?')">How much can I spend?</button><button onclick="askChip('How is this week?')">How is this week?</button><button onclick="askChip('Am I safe from scams?')">Am I safe from scams?</button><button onclick="askChip('Best way to save?')">Best way to save?</button></div>
+</section>
+
+<!-- SECURITY -->
+<section class="screen hide" id="s-security">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#334,#667)">🛡</div><div><small>Safety</small><b>Security</b></div></div></div>
+  <div class="okbox">🤖 AI fraud checks run on every transaction. If a scam drains you, we refund it within 5 business days.</div>
+  <div class="card">
+    <div class="rowline"><div class="avatar">👁</div><div class="grow"><b>Biometric only</b><div class="dim">Face or fingerprint to open</div></div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="rowline"><div class="avatar">📱</div><div class="grow"><b>Devices</b><div class="dim">iPhone 15 · Lagos · current</div></div></div>
+    <div class="rowline"><div class="avatar">🧪</div><div class="grow"><b>Test the AI</b><div class="dim">See how a scam is caught</div></div><button class="pill blue" onclick="toast('Demo: flagged "urgent" wire as scam and froze it.')">Run</button></div>
+  </div>
+</section>
+
+<!-- VERIFY ONCE ID -->
+<section class="screen hide" id="s-id">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#7c5cff,#2bb5d6)">🪪</div><div><small>Verify once, reuse everywhere</small><b>Identity</b></div></div></div>
+  <div class="okbox">Your identity, verified once. Every service after this accepts the proof: no re-uploading documents, ever. Proofs reveal only what a service needs, nothing more.</div>
+  <div class="stat-grid">
+    <div class="stat"><small>TRUST SCORE</small><b>98</b></div>
+    <div class="stat"><small>PROOFS SHARED</small><b id="proofCount">0</b></div>
+  </div>
+  <div class="card tight">
+    <div class="rowline"><div class="avatar">✅</div><div class="grow"><b>Government ID</b><div class="dim">Verified · reusable proof ready</div></div></div>
+    <div class="rowline"><div class="avatar">✅</div><div class="grow"><b>Phone & email</b><div class="dim">Verified · reusable proof ready</div></div></div>
+    <div class="rowline"><div class="avatar">✅</div><div class="grow"><b>Address</b><div class="dim">Verified · reusable proof ready</div></div></div>
+    <div class="rowline"><div class="avatar">✅</div><div class="grow"><b>Bank account</b><div class="dim">Verified · reusable proof ready</div></div></div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px">Share a proof</b>
+    <div class="dim">Generate a one-time proof: name confirmed, 18+, nothing else revealed. Expires in 24 hours.</div>
+    <button class="bigbtn" style="margin-top:12px" onclick="shareProof()">Generate proof code</button>
+  </div>
+  <div class="card">
+    <div class="chip-toggle" onclick="toggleChip('face',this)"><div><b style="font-size:14px">Face & passkey unlock</b><div class="dim">Your face is the key, on-device only</div></div><div class="switch on"></div></div>
+  </div>
+</section>
+
+<!-- MONEY RULES -->
+<section class="screen hide" id="s-rules">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ff9f2e,#ff5c7c)">⚙️</div><div><small>Programmable money</small><b>Money rules</b></div></div></div>
+  <div class="okbox">If-this-then-that for your cash. Rules run on every payout and every midnight. You write the policy, the bank obeys it.</div>
+  <div id="ruleList"></div>
+  <button class="bigbtn" onclick="runRules()">Run rules now</button>
+</section>
+
+<!-- AJO CIRCLES -->
+<section class="screen hide" id="s-circles">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2ee6a8,#2bb5d6)">🤝</div><div><small>Sunday Ajo · 4 members</small><b>Ajo circles</b></div></div></div>
+  <div class="stat-grid">
+    <div class="stat"><small>THE POT</small><b>$<span id="circlePot">0</span></b></div>
+    <div class="stat"><small>ROUND</small><b><span id="circleRound">1</span>/<span id="circleOf">4</span></b></div>
+    <div class="stat"><small>ESCROW POOL</small><b>$<span id="circleEscrow">0</span></b></div>
+  </div>
+  <div class="okbox">Full transparency: every member sees the pot, the payout order and every receipt. A missed payment is covered by the escrow pool, and that member's trust score drops for everyone to see.</div>
+  <div class="card tight" id="circleMembers"></div>
+  <div class="card">
+    <b style="font-size:15px">Payout schedule</b>
+    <div class="dim">Same for every member, locked at circle creation.</div>
+    <div id="circleSchedule" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <div class="chip-toggle" onclick="toggleC('auto',this)"><div><b style="font-size:14px">Auto-contribute</b><div class="dim">Your share deducts itself every cycle</div></div><div class="switch on"></div></div>
+    <div class="chip-toggle" style="margin-top:10px" onclick="toggleC('remind',this)"><div><b style="font-size:14px">Payment reminders</b><div class="dim">Nudges you and late payers 3 days before</div></div><div class="switch on"></div></div>
+    <div class="flex" style="gap:10px;margin-top:12px">
+      <button class="bigbtn" style="flex:1" onclick="contributeCircle()">Contribute $<span id="circleAmt">25</span></button>
+      <button class="bigbtn ghost" style="flex:1" onclick="drawPot()">Run draw</button>
+    </div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px">Circle chat</b>
+    <div id="circleChat" style="margin-top:10px"></div>
+    <div class="flex" style="gap:8px;margin-top:10px">
+      <input id="chatInput" placeholder="Message the circle…" style="flex:1;padding:12px 14px;border-radius:14px;border:1px solid var(--line2);background:var(--panel2);color:var(--tx);font-family:inherit;font-size:13px;outline:none">
+      <button class="pill blue" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px">Receipts</b>
+    <div id="circleReceipts" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- MACHINE WALLETS -->
+<section class="screen hide" id="s-machines">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#5b7cfa,#9d5cff)">🤖</div><div><small>Machines that pay their own way</small><b>Machine wallets</b></div></div></div>
+  <div class="okbox">Give any device or agent its own wallet with a hard ceiling. They settle their own micro-payments: tolls, insurance, fuel, API calls. You set the budget, they never exceed it.</div>
+  <div id="machineList"></div>
+  <button class="bigbtn ghost" onclick="newMachine()">+ New machine wallet</button>
+</section>
+
+<!-- EASY HOME -->
+<section class="screen hide" id="s-easy">
+  <div class="easy-wrap">
+    <div class="easy-hi">Hello! 👋</div>
+    <div class="easy-bal">Your money: $<span id="ezBal">0</span></div>
+    <div class="easy-sub" id="ezSafe"></div>
+    <div class="easy-grid">
+      <button class="easybtn" onclick="easySend()"><em>💸</em><span>Send money</span></button>
+      <button class="easybtn" onclick="easyVoice()"><em>🎤</em><span>Speak to your bank</span></button>
+      <button class="easybtn" onclick="go('topup')"><em>📲</em><span>Buy airtime</span></button>
+      <button class="easybtn" onclick="go('bills')"><em>💡</em><span>Pay a bill</span></button>
+      <button class="easybtn" onclick="easyStatement()"><em>📄</em><span>My statement</span></button>
+      <button class="easybtn" onclick="go('bot')"><em>💬</em><span>Ask a helper</span></button>
+    </div>
+    <button class="easybtn" id="ezAgain" onclick="easyAgain()" style="display:none;margin-top:12px;width:100%"><em>🔁</em><span>Send again to <b id="ezAgainName"></b></span></button>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="easylink" onclick="toggleElder()"><span id="ezElder">Make everything bigger</span></button>
+      <button class="easylink" onclick="easySpeak()">🔊 Read my money out</button>
+    </div>
+    <div class="easy-sec">This month, in plain words</div>
+    <div id="ezPass"></div>
+    <button class="easylink" onclick="easyBack()">Use the full app instead</button>
+  </div>
+</section>
+
+<!-- STACK ANYWHERE OFFLINE -->
+<section class="screen hide" id="s-offline">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2bb5d6,#7c5cff)">📶</div><div><small>No internet? Never a problem</small><b>Stack Anywhere</b></div></div></div>
+  <div class="okbox">The 0-second rule: every transaction completes the second you press send. Never a spinner, never a queue, even with no data. Settlement happens quietly in the background while you walk away.</div>
+  <div class="stat-grid">
+    <div class="stat"><small>DATA</small><b id="netLbl">On</b></div>
+    <div class="stat"><small>AVG TRANSACTION TIME</small><b id="queueCount">0.4s</b></div>
+  </div>
+  <button class="bigbtn ghost" onclick="netToggle()" id="netBtn">Turn data off (try it)</button>
+    <div class="card">
+    <div class="flex"><div class="avatar">📞</div><div class="grow"><b>USSD · *7825#</b><div class="dim">Dial it on any phone, even a torch-light Nokia. Zero data, works everywhere in Nigeria.</div></div></div>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="ussdMenu()">Try the USSD menu</button>
+  </div>
+  <div class="card">
+    <div class="flex"><div class="avatar">✉️</div><div class="grow"><b>Bank by SMS</b><div class="dim">Text SEND 20 Mama to 7825. Runs on the phone network, not the internet.</div></div></div>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="smsSend()">Send by SMS</button>
+  </div>
+  <div class="card">
+    <div class="flex"><div class="avatar">🔗</div><div class="grow"><b>Offline QR pay</b><div class="dim">No signal at all? Pay by signed QR. The merchant accepts it instantly. Records sync quietly in the background. Capped at $50.</div></div></div>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="qrPay()">Pay offline with QR</button>
+  </div>
+</section>
+
+<!-- AIRTIME & DATA -->
+<section class="screen hide" id="s-topup">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ffb35c,#ff5c8a)">📲</div><div><small>Recharge in one tap</small><b>Airtime &amp; Data</b></div></div></div>
+  <div class="okbox">Pick your network, tap an amount, done. It lands on your line the second you tap. You earn 1% Stack Cash back on every recharge.</div>
+  <div class="shead"><h3>Your network</h3></div>
+  <div class="picks" id="telcoChips"></div>
+  <div class="shead"><h3>What do you want?</h3></div>
+  <div class="picks" id="topAmts"></div>
+  <div class="dim" id="topSel" style="margin-top:12px"></div>
+  <button class="bigbtn" onclick="doTopup()">Recharge now · lands instantly</button>
+  <div class="card" style="margin-top:14px"><b style="font-size:15px">Stack Cash</b><div class="dim">Cashback earned so far: <b id="cashTop">$0</b>. Redeem it to your balance any time.</div><button class="pill blue" style="margin-top:10px" onclick="redeemCash()">Redeem to balance</button></div>
+</section>
+
+<!-- BILLS -->
+<section class="screen hide" id="s-bills">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#ffd25c,#ff9d5c)">💡</div><div><small>Light, TV, water · no queues</small><b>Pay bills</b></div></div></div>
+  <div class="okbox">Tap a bill and it is paid the second you tap, receipt right there. Every bill pays you 1% Stack Cash back.</div>
+  <div id="billList"></div>
+  <div class="card" style="margin-top:14px"><b style="font-size:15px">Stack Cash</b><div class="dim">Cashback earned so far: <b id="cashBill">$0</b>.</div><button class="pill blue" style="margin-top:10px" onclick="redeemCash()">Redeem to balance</button></div>
+</section>
+
+<!-- STACK POT -->
+<section class="screen hide" id="s-pot">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#5cffb3,#2bb5d6)">🏦</div><div><small>Money that grows every single day</small><b>Stack Pot</b></div></div></div>
+  <div class="okbox">Your pot earns 25% a year, counted daily. Take your money out the second you want it: no lock, no penalty, no story.</div>
+  <div class="stat-grid">
+    <div class="stat"><small>POT BALANCE</small><b id="potBal">$0</b></div>
+    <div class="stat"><small>TODAY'S INTEREST</small><b id="potInt">$0.00</b></div>
+    <div class="stat"><small>RATE</small><b>25%/yr</b></div>
+  </div>
+  <div class="shead"><h3>Put money in</h3></div>
+  <div class="picks">
+    <button class="pick" onclick="potAdd(10)">Add $10</button>
+    <button class="pick" onclick="potAdd(50)">Add $50</button>
+    <button class="pick" onclick="potAdd(100)">Add $100</button>
+  </div>
+  <button class="bigbtn ghost" style="margin-top:14px" onclick="potWithdraw()">Take everything out · instantly</button>
+  <button class="pill blue" id="potAuto" style="margin-top:12px" onclick="potAuto()">Auto-grow: OFF</button>
+</section>
+
+<!-- MULTI-CURRENCY FX -->
+<section class="screen hide" id="s-fx">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#2bb5d6,#2ee6a8)">🌐</div><div><small>Hold & convert</small><b>Multi-currency</b></div></div></div>
+  <div class="okbox">Hold four currencies at once. Convert at the real mid-market rate, 0% markup (0.5% on the standard card, free with Gold).</div>
+  <div class="stat-grid">
+    <div class="stat"><small>USD (MAIN)</small><b>$<span id="fxUsd">0</span></b></div>
+    <div class="stat"><small>NAIRA</small><b>₦<span id="fxNgn">0</span></b></div>
+    <div class="stat"><small>POUND</small><b>£<span id="fxGbp">0</span></b></div>
+    <div class="stat"><small>EURO</small><b>€<span id="fxEur">0</span></b></div>
+  </div>
+  <div class="card">
+    <div class="field"><label>FROM</label><select id="fxFrom" onchange="updConvert()"><option>USD</option><option>NGN</option><option>GBP</option><option>EUR</option></select></div>
+    <div class="field"><label>TO</label><select id="fxTo" onchange="updConvert()"><option>NGN</option><option>GBP</option><option>EUR</option><option>USD</option></select></div>
+    <div class="field"><label>AMOUNT</label><input id="fxAmt" type="number" value="100" inputmode="decimal" oninput="updConvert()"></div>
+    <div class="flex"><span class="mut">You receive</span><b id="fxOut" class="num" style="font-size:18px"></b></div>
+    <div class="dim" id="fxRate" style="margin-top:4px"></div>
+    <button class="bigbtn" style="margin-top:14px" onclick="doConvert()">Convert now</button>
+  </div>
+</section>
+
+<!-- INVEST -->
+<section class="screen hide" id="s-invest">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#5b7cfa,#2ee6a8)">📈</div><div><small>Grow it here</small><b>Investing</b></div></div></div>
+  <div class="stat-grid">
+    <div class="stat"><small>PORTFOLIO VALUE</small><b>$<span id="pfVal">0</span></b></div>
+    <div class="stat"><small>SPARE-CHANGE INVESTING</small><b id="pfAuto" style="font-size:14px">Off</b></div>
+  </div>
+  <div class="card tight" id="assetList"></div>
+  <div class="card">
+    <div class="chip-toggle" onclick="toggleChip('autoinvest',this)"><div><b style="font-size:14px">Invest my round-ups</b><div class="dim">Every rounded-up cent buys the S&P fund</div></div><div class="switch"></div></div>
+  </div>
+</section>
+
+<!-- MORE -->
+<section class="screen hide" id="s-more">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#141826,#33405e)">⋯</div><div><small>Everything</small><b>More</b></div></div></div>
+  <div class="grid3">
+    <button onclick="go('bills')">🧾 Bills</button>
+    <button onclick="go('security')">🛡 Security</button>
+    <button onclick="go('settings')">⚙️ Settings</button>
+    <button onclick="go('add')">⬆️ Add cash</button>
+    <button onclick="go('remit')">🌍 Remit</button>
+    <button onclick="go('crypto')">₿ Crypto</button>
+    <button onclick="go('activity')">📋 Activity</button>
+    <button onclick="go('notifs')">🔔 Alerts</button>
+    <button onclick="go('ask')">✨ Ask Stack</button>
+    <button onclick="go('bot')">💬 Chat bot</button>
+    <button onclick="easyOn()">🧓 Easy home</button>
+    <button onclick="go('fx')">🌐 Multi-currency</button>
+    <button onclick="go('invest')">📈 Invest</button>
+    <button onclick="go('id')">🪪 Verify once</button>
+    <button onclick="go('rules')">⚙️ Money rules</button>
+    <button onclick="go('circles')">🤝 Ajo circles</button>
+    <button onclick="go('machines')">🤖 Machine wallets</button>
+    <button onclick="go('offline')">📶 Works offline</button>
+    <button onclick="go('topup')">📲 Airtime &amp; data</button>
+    <button onclick="go('bills')">💡 Pay bills</button>
+    <button onclick="go('pot')">🏦 Stack Pot</button>
+    <button onclick="toggleElder()">👴 <span id="elderLbl">Elder size</span></button>
+  </div>
+  <div class="shead"><h3>Money autopilot</h3></div>
+  <div class="card">
+    <div class="rowline"><div class="avatar">💵</div><div class="grow"><b>Paycheck ladder</b><div class="dim">Steady weekly salary from lumpy income</div></div><button class="pill blue" onclick="go('ladder')">Open</button></div>
+    <div class="rowline"><div class="avatar">🛡</div><div class="grow"><b>Late-payer shield</b><div class="dim">We pay you when clients pay late</div></div><button class="pill blue" onclick="go('shield')">Open</button></div>
+    <div class="rowline"><div class="avatar">🌤</div><div class="grow"><b>Salary weather</b><div class="dim">Your income forecast for the week</div></div><button class="pill blue" onclick="go('weather')">Open</button></div>
+  </div>
+  <div class="card tight" style="text-align:center"><div class="dim">Stack Bank demo v2.0 · balances simulated · FDIC pass-through insurance arrives with our partner bank in the live version</div></div>
+</section>
+</main>
+
+<nav>
+  <button class="on" data-go="home" onclick="go('home')"><span class="nico">🏠</span>Home</button>
+  <button data-go="card" onclick="go('card')"><span class="nico">💳</span>Card</button>
+  <button class="sendfab" onclick="go('send')">↗️</button>
+  <button data-go="jars" onclick="go('jars')"><span class="nico">🍯</span>Jars</button>
+  <button data-go="more" onclick="go('more')"><span class="nico">⋯</span>More</button>
+</nav>
+</div>
+<div class="modal-bg hide" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toastEl"></div>
+</body>
+<script>
+const $ = id => document.getElementById(id);
+const money = n => n.toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:0});
+const S_KEY = 'stackbank_v2';
+let S, txFilter='all', lastAsk;
+
+const BTC=92350, ETH=3150;
+const rates={Nigeria:1530,Ghana:15.2,Kenya:129,'UK':0.78,Mexico:18.3};
+const curs={Nigeria:'₦',Ghana:'₵',Kenya:'KSh','UK':'£',Mexico:'$'};
+
+function save(){localStorage.setItem(S_KEY,JSON.stringify(S))}
+function load(){
+  const raw=localStorage.getItem(S_KEY);
+  if(raw){S=JSON.parse(raw); enterApp();}
+  else showOnboard();
+}
+function showOnboard(){$('onboard').classList.remove('hide')}
+function onbNext(){$('onbStep').classList.add('hide');$('kyc').classList.remove('hide')}
+function finishOnboard(){
+  S={balance:1240.50,jars:[{name:'Rent',emoji:'🏠',target:800,saved:540,c:'mint'},{name:'Fun',emoji:'🎉',target:300,saved:120,c:'gold'},{name:'Car fix',emoji:'🔧',target:500,saved:75,c:'blue'}],
+    txs:[{d:'Fri',t:'Dash payout',a:86.2,i:'🛴',k:'in'},{d:'Thu',t:'Shell · fuel',a:-41.8,i:'⛽',k:'out'},{d:'Wed',t:'Uber payout',a:112.4,i:'🚗',k:'gig'},{d:'Wed',t:'Netflix',a:-15.49,i:'🍿',k:'out'},{d:'Tue',t:'DoorDash payout',a:97.6,i:'🛴',k:'gig'},{d:'Mon',t:'To jars · Rent',a:-60,i:'🍯',k:'out'}],
+    billers:[{name:'Phone',emoji:'📱',due:'in 6 days',amt:35},{name:'Rent',emoji:'🏠',due:'in 12 days',amt:800},{name:'Internet',emoji:'🌐',due:'in 19 days',amt:55}],
+    gigs:[{name:'Dash',icon:'🛴',connected:true,pending:18.4},{name:'Uber',icon:'🚗',connected:true,pending:0},{name:'TaskRabbit',icon:'🪑',connected:false,pending:0}],
+    coins:[{sym:'BTC',name:'Bitcoin',p:BTC},{sym:'ETH',name:'Ethereum',p:ETH}],
+    holdings:{BTC:0.004,ETH:0.15}, card:{frozen:false,gold:false}, notifs:[{t:'Welcome to Stack 👋',d:'Your ladder, shield and weather are ready.'}],
+    ladder:{on:false,weekly:250,reserve:0,lastPayday:null}, invoices:[{client:'Nordic Web Design',amt:320,due:Date.now()-3*864e5,status:'overdue'}], shield:{covered:0,recovered:0}, weekly:[420,390,510,465,540,478],
+    name:'Ava', onboarded:true};
+  save(); enterApp();
+}
+function migrate(){
+  if(!S.ladder)S.ladder={on:false,weekly:250,reserve:0,lastPayday:null};
+  if(!S.invoices)S.invoices=[{client:'Nordic Web Design',amt:320,due:Date.now()-3*864e5,status:'overdue'}];
+  if(!S.shield)S.shield={covered:0,recovered:0};
+  if(!S.weekly)S.weekly=[420,390,510,465,540,478];
+  if(!S.card)S.card={frozen:false,gold:false}; if(!("gold" in S.card))S.card.gold=false;
+  if(!S.bot)S.bot={channels:{WhatsApp:true,Telegram:false,Instagram:false,X:false},log:[],draft:null};
+  if(!S.bot.log.length)S.bot.log.push({t:'I am your Stack bot. I draft the money move, you approve it on this device. Say "help" to see what I can do.',me:false});
+  if(!S.fx)S.fx={NGN:230000,GBP:0,EUR:0};
+  if(!S.portfolio)S.portfolio={AAPL:0,TSLA:0,SPY:0.5,NGXP:0,GOLD:0};
+  if(!S.autoPct)S.autoPct=10;
+  if(!S.rules)S.rules=JSON.parse(JSON.stringify(RULES));
+  if(!S.circle||!S.circle.members||typeof S.circle.members[0]!=='object')S.circle={v2:1,name:'Sunday Ajo',amt:25,escrow:50,auto:true,remind:true,paid:0,round:1,pot:0,members:[{n:'You',trust:98},{n:'Tunde',trust:91},{n:'Ada',trust:100},{n:'Emeka',trust:84}],msgs:[{w:'Tunde',t:'I go pay before Friday, no wahala',me:false},{w:'You',t:'Confirmed. Round 2 oya.',me:true}]};
+  if(!S.machines)S.machines=[{n:'Delivery bike',icon:'🛵',budget:200,spent:132,frozen:false},{n:'AI agent',icon:'🤖',budget:50,spent:8,frozen:false}];
+  if(!S.proofs)S.proofs=0;
+  if(S.easy===undefined)S.easy=false;
+  if(S.net===undefined)S.net=true;
+  if(S.cash===undefined)S.cash=0;
+  if(!S.pot)S.pot={bal:0,auto:false};
+  if(S.elder===undefined)S.elder=false;
+  if(!S.telco)S.telco='MTN';
+}
+function enterApp(){
+  migrate();applyElder();
+  $('onboard').classList.add('hide'); $('app').classList.remove('hide');
+  ladderTick(); render(); go('home');
+}
+
+/* RENDER */
+function go(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hide'));
+  const el=$('s-'+tab); if(el)el.classList.remove('hide');
+  document.querySelectorAll('nav button[data-go]').forEach(b=>b.classList.toggle('on',b.dataset.go===tab));
+  if(tab==='notifs')renderNotifs();
+  if(tab==='topup')renderTopup();if(tab==='bills')renderBills();if(tab==='pot')renderPot();
+  if(tab==='ladder')renderLadder();
+  if(tab==='shield')renderShield();
+  if(tab==='weather')renderWeather();
+  if(tab==='jars')renderJars();
+  if(tab==='card')renderCard();
+  if(tab==='gigs')renderGigs();
+  if(tab==='crypto')renderCrypto();
+  if(tab==='activity')renderTx();
+  if(tab==='bills')renderBills();
+  if(tab==='remit')updRemit();
+  if(tab==='add')renderAdd();
+  if(tab==='bot')renderBot();
+  if(tab==='fx')renderFx();
+  if(tab==='invest')renderInvest();
+  if(tab==='id')renderId();
+  if(tab==='rules')renderRules();
+  if(tab==='circles')renderCircles();
+  if(tab==='machines')renderMachines();
+  if(tab==='offline')renderOffline();
+  renderHome();
+  main(); // scroll top helper placeholder
+  document.querySelector('main').scrollTop=0;
+}
+function main(){}
+function render(){
+  $('balHome').textContent=money(S.balance);
+  renderHome(); renderTx(); renderNotifs();
+}
+function renderHome(){
+  $('balHome').textContent=money(S.balance);
+  const ch=$('cashHome');if(ch)ch.textContent=S.cash>0?('🎁 Stack Cash earned: $'+money(S.cash)+' · redeem it in More'):'You earn 1% Stack Cash back on everything you pay.';
+  const L=S.ladder;
+  $('ladderLine').textContent=L.on?('Ladder on · your salary $'+L.weekly+' lands Friday'):('No paycheck ladder yet · earnings vary week to week');
+  const w=weather();
+  $('weatherMini').innerHTML=w.icon+' <b>'+w.head+'</b> · '+w.sub;
+  $('wIc').textContent=w.icon;
+  if(window.renderLadderHero)renderLadderHero();
+  const t=S.txs.slice(0,4).map(txRow).join('');
+  $('txHome').innerHTML=t||'<div class="dim" style="padding:8px 0">No activity yet</div>';
+  if(S.notifs.some(n=>!n.read))$('notifDot').style.display='block'; else $('notifDot').style.display='none';
+}
+function txRow(t){
+  const sign=t.a>0?'+':'−', cls=t.a>0?'pos':'neg';
+  let pill='';
+  if(t.st==='failed')pill='<span class="pill red">Failed</span>';
+  else if(t.st==='pending'||t.k==='pend')pill='<span class="pill gold">Pending</span>';
+  else if(t.st==='duplicate')pill='<span class="pill blue">Duplicate</span>';
+  else if(t.st==='settled')pill='<span class="pill mint">Sent</span>';
+  const retry=t.st==='failed'?'<button class="pill gold" style="margin-top:4px" onclick="retryFailed()">Retry</button>':'';
+  return '<div class="rowline"><div class="avatar">'+t.i+'</div><div class="grow"><b>'+t.t+'</b><div class="dim">'+t.d+(t.why?' · '+t.why:'')+'</div></div><div class="amt" style="text-align:right"><b class="'+cls+'">'+sign+'$'+money(Math.abs(t.a))+'</b><div style="margin-top:4px">'+pill+retry+'</div></div></div>';
+}
+
+/* WEATHER ENGINE */
+function weather(){
+  const wk=S.weekly, avg=wk.slice(0,5).reduce((a,b)=>a+b,0)/5, cur=wk[5];
+  const diff=cur-avg, trend=diff>=0?'above':'under';
+  const icon=diff>=30?'☀️':diff>=-30?'🌤':'🌧';
+  const proj=S.balance+(diff>=0?diff*0.5:diff*0.6);
+  const next=S.billers[0];
+  return {icon:icon, head:(diff>=0?'+':'−')+'$'+money(Math.abs(diff))+' this week',
+    sub:'trending '+trend+' your $'+money(avg)+' average'+(diff<0?(' · '+next.name+' '+next.due):' · you\'re ahead'),
+    avg:avg, cur:cur, proj:proj};
+}
+function renderWeather(){
+  const w=weather();
+  $('fcChart').innerHTML=S.weekly.map((v,i)=>'<div class="cb'+(i===5?' hl':'')+'"><span class="cv">$'+money(v)+'</span><i style="height:'+Math.max(6,(v/600)*100)+'%"></i><small>'+(i===5?'now':'W'+(i+1))+'</small></div>').join('');
+  const next=S.billers[0], jar=S.jars[0], pct=Math.round(jar.saved/jar.target*100);
+  const lines=[
+    ['📈','Your 6-week average is <b>$'+money(w.avg)+'</b>. This week you\'re at <b>$'+money(w.cur)+'</b>, '+(w.cur-w.avg>=0?'ahead by $'+money(w.cur-w.avg):'behind by $'+money(w.avg-w.cur))+'.'],
+    ['🧾','Next bill: <b>'+next.name+' $'+next.amt+' '+next.due+'</b>. '+(S.balance>=next.amt?'You\'re covered.':('At this trend you\'re $'+money(next.amt-S.balance)+' short — turn on the ladder.'))],
+    ['🏠','<b>'+jar.name+'</b> jar is '+pct+'% funded ($'+money(jar.saved)+' of $'+money(jar.target)+').'],
+    ['💰','If this week holds, you\'ll end around <b>$'+money(Math.max(0,w.proj))+'</b>.'+(S.ladder.on?' Your ladder already locks in $'+S.ladder.weekly+' on Friday.':' The paycheck ladder would make that certain.')],
+  ];
+  $('fcLines').innerHTML=lines.map(l=>'<div class="fc-line"><span class="fic">'+l[0]+'</span><span>'+l[1]+'</span></div>').join('');
+}
+
+/* LADDER */
+function renderLadder(){
+  const L=S.ladder;
+  $('ladderSwitch').classList.toggle('on',L.on);
+  $('ladderWeekly').value=L.weekly; $('ladderWeeklyLbl').textContent='$'+L.weekly;
+  $('ladderReserve').textContent=money(L.reserve);
+  $('ladderNext').textContent=L.on?'Friday':'—';
+  $('ladderState').innerHTML=L.on
+    ? '✅ Ladder is live. Fridays you get paid <b>$'+L.weekly+'</b> no matter how the week went. Reserve: $'+money(L.reserve)+'.'
+    : 'Your income swings '+Math.round(Math.abs((Math.max(...S.weekly)-Math.min(...S.weekly))/Math.max(...S.weekly))*100)+'% week to week. The ladder turns it into one steady salary.';
+}
+function toggleLadder(){
+  S.ladder.on=!S.ladder.on;
+  if(S.ladder.on&&!S.ladder.lastPayday){
+    const d=new Date(); const days=(5-d.getDay()+7)%7;
+    S.ladder.lastPayday=Date.now()+days*864e5;
+  }
+  save(); renderLadder(); renderHome();
+  toast(S.ladder.on?('Ladder on. $'+S.ladder.weekly+' lands every Friday.'):'Ladder paused.');
+}
+function runPayday(){
+  const L=S.ladder, avg=S.weekly.slice(0,5).reduce((a,b)=>a+b,0)/5, cur=S.weekly[5];
+  let sweep=Math.max(0,Math.round((cur-avg)*0.6));
+  if(L.on){
+    if(L.reserve<L.weekly){S.balance-=(L.weekly-L.reserve);L.reserve=L.weekly;}
+    L.reserve-=L.weekly; S.balance+=L.weekly;
+  }
+  S.txs.unshift({d:'Fri',t:'Ladder payday',a:L.weekly,i:'💵',k:'in'});
+  if(sweep>0){L.reserve+=sweep;S.txs.unshift({d:'Fri',t:'Ladder sweep to reserve',a:-sweep,i:'💵',k:'out'});}
+  S.weekly=[...S.weekly.slice(1),Math.max(80,Math.round(avg+(Math.random()*260-130)))];
+  save(); render(); if($('s-ladder').classList.contains('hide')===false)renderLadder();
+  toast('Payday ran: paid $'+L.weekly+' salary'+(sweep?', swept $'+sweep:'')+'.');
+}
+function ladderTick(){
+  const L=S.ladder;
+  if(L.on&&L.lastPayday&&Date.now()>=L.lastPayday+7*864e5)runPayday();
+}
+
+/* SHIELD */
+function renderShield(){
+  $('shieldCovered').textContent=money(S.shield.covered);
+  $('shieldRecovered').textContent=money(S.shield.recovered);
+  $('invoiceList').innerHTML=S.invoices.map((inv,i)=>{
+    const overdue=inv.status==='overdue', days=Math.floor((Date.now()-inv.due)/864e5);
+    let pill=inv.status==='paid'?'<span class="pill mint">Paid</span>':overdue?'<span class="pill red">Overdue '+days+'d</span>':'<span class="pill blue">Awaiting</span>';
+    let act=overdue?'<button class="pill gold" onclick="claimShield('+i+')">Shield pays me</button>':'';
+    return '<div class="rowline"><div class="avatar">🧾</div><div class="grow"><b>'+inv.client+'</b><div class="dim">$'+money(inv.amt)+' · due '+(overdue?days+' days ago':new Date(inv.due).toLocaleDateString())+'</div></div>'+act+pill+'</div>';
+  }).join('')||'<div class="dim" style="padding:8px 0">No invoices logged yet.</div>';
+}
+function addInvoice(){
+  openModal('<h3>Log an invoice</h3><div class="mut">We watch it. If they pay late, you don\'t wait.</div>'+
+    '<div class="field"><label>CLIENT</label><input id="invClient" placeholder="Who owes you"></div>'+
+    '<div class="field"><label>AMOUNT ($)</label><input id="invAmt" type="number" placeholder="0.00" inputmode="decimal"></div>'+
+    '<button class="bigbtn" onclick="saveInvoice()">Add invoice</button>');
+}
+function saveInvoice(){
+  const c=$('invClient').value.trim(), a=parseFloat($('invAmt').value);
+  if(!c||!a){toast('Add a client and amount');return}
+  S.invoices.unshift({client:c,amt:a,due:Date.now()+14*864e5,status:'awaiting'});
+  closeModal(); save(); renderShield(); toast('Invoice logged. Shield is watching it.');
+}
+function claimShield(i){
+  const inv=S.invoices[i];
+  if(inv.status!=='overdue')return;
+  S.balance+=inv.amt; S.shield.covered+=inv.amt;
+  inv.status='paid';
+  S.txs.unshift({d:'Today',t:'Shield payout · '+inv.client,a:inv.amt,i:'🛡',k:'in'});
+  S.notifs.unshift({t:'🛡 Shield paid you $'+money(inv.amt),d:inv.client+' paid '+Math.floor((Date.now()-inv.due)/864e5)+' days late. We fronted it and are chasing them now.'});
+  save(); render(); renderShield();
+  toast('Shield paid you $'+money(inv.amt)+' within the hour. We chase the client.');
+}
+
+/* CARD */
+function renderCard(){
+  $('bankCard').classList.toggle('frozen',S.card.frozen);
+  $('bankCard').classList.toggle('gold',!!S.card.gold);
+  $('freezeBtn').innerHTML=S.card.frozen?'☀️ Unfreeze':'❄️ Freeze';
+  $('cardNum').textContent=S.card.frozen?'FROZEN':'•••• •••• •••• 4821';
+  const p=$('goldPill'); if(p)p.textContent=S.card.gold?'Active ✓':'Upgrade · free';
+  const gp=$('goldPerks'); if(gp)gp.classList.toggle('hide',!S.card.gold);
+  const gs=$('goldSub'); if(gs)gs.textContent=S.card.gold?'Gold active · 0% FX, $0 ATM fees worldwide':'Premium metal · works in 190+ countries';
+  const r1=document.querySelector('#bankCard .row1 b'); if(r1)r1.textContent=S.card.gold?'Stack GOLD':'Stack';
+}
+function freezeCard(){S.card.frozen=!S.card.frozen;save();renderCard();toast(S.card.frozen?'Card frozen.':'Card active.')}
+function revealCard(){
+  openModal('<h3>Your card</h3><div class="mut">4811 7429 8821 4821 · exp 04/29 · CVV 814</div><button class="bigbtn" onclick="closeModal()">Done</button>');
+}
+function orderPhysical(){toast('Physical card ordered. Free, arrives in 7 days (demo).')}
+function toggleChip(k,el){el.querySelector('.switch').classList.toggle('on');const on=el.querySelector('.switch').classList.contains('on');const map={autoinvest:'pfAuto',roundups:'roundups'};if(map[k]){S[map[k]]=on;save();}toast((k==='autoinvest'?'Round-up investing ':(k==='online'?'Online-only mode ':(k==='intl'?'International use ':(k==='face'?'Face unlock ':'Round-ups '))))+(on?'on':'off')+'.')}
+
+function upgradeGold(){
+  S.card.gold=!S.card.gold; save(); renderCard();
+  toast(S.card.gold?'Stack Gold active. The metal card ships with your next physical order.':'Back to the standard card.');
+}
+function withdrawWorld(){
+  const opts=Object.keys(rates);
+  openModal('<h3>Withdraw worldwide</h3><div class="mut">With Gold: real exchange rate, 0% FX fee, $0 ATM fee. Any ATM, local currency.</div>'+
+    '<div class="field"><label>COUNTRY</label><select id="wdCountry" onchange="updWd()">'+opts.map(c=>'<option>'+c+'</option>').join('')+'</select></div>'+
+    '<div class="field"><label>AMOUNT (USD)</label><input id="wdAmt" type="number" value="100" inputmode="decimal" oninput="updWd()"></div>'+
+    '<div class="flex"><span class="mut">You get</span><b id="wdOut" style="font-size:18px"></b></div>'+
+    '<button class="bigbtn" style="margin-top:16px" onclick="doWithdraw()">Withdraw</button>');
+  updWd();
+}
+function updWd(){
+  const c=$('wdCountry').value, a=parseFloat($('wdAmt').value)||0;
+  $('wdOut').textContent=(curs[c]||'$')+' '+money(a*(rates[c]||1));
+}
+function doWithdraw(){
+  const c=$('wdCountry').value, a=parseFloat($('wdAmt').value)||0;
+  if(a>S.balance){toast('Not enough balance');return}
+  S.balance-=a; S.txs.unshift({d:'Today',t:'ATM withdrawal · '+c,a:-a,i:'🏧',k:'out'});
+  save(); closeModal(); render();
+  toast('Withdrew '+(curs[c]||'$')+' '+money(a*(rates[c]||1))+' in '+c+'. 0% fees with Gold.');
+}
+
+/* JARS */
+function renderJars(){
+  const colors={mint:'#2ee6a8',gold:'#ffc466',blue:'#5b7cfa'};
+  $('jarList').innerHTML=S.jars.map((j,i)=>{
+    const pct=Math.round(j.saved/j.target*100);
+    return '<div class="jar"><div class="jemoji" style="background:'+colors[j.c]+'22">'+j.emoji+'</div><div class="fillzone"><div class="jname"><span>'+j.name+'</span><span>$'+money(j.saved)+' / $'+money(j.target)+'</span></div><div class="bar"><i style="width:'+pct+'%;background:'+colors[j.c]+'"></i></div></div></div>';
+  }).join('');
+}
+function autoSave(){S.jars[0].saved+=2;S.balance-=2;S.txs.unshift({d:'Today',t:'Auto-save · '+S.jars[0].name,a:-2,i:'🤖',k:'out'});save();render();renderJars();toast('Saved $2 to '+S.jars[0].name+'.')}
+function newJar(){
+  openModal('<h3>New jar</h3><div class="field"><label>NAME</label><input id="jarName" placeholder="e.g. Tokyo trip"></div><div class="field"><label>TARGET ($)</label><input id="jarTarget" type="number" value="500"></div><button class="bigbtn" onclick="saveJar()">Create jar</button>');
+}
+function saveJar(){
+  const n=$('jarName').value.trim(), t=parseFloat($('jarTarget').value)||500;
+  if(!n){toast('Name your jar');return}
+  S.jars.push({name:n,emoji:'🎯',target:t,saved:0,c:'blue'});closeModal();save();renderJars();toast('Jar "'+n+'" created.');
+}
+
+/* SEND */
+function doSend(){
+  const to=$('sendTo').value.trim(), a=parseFloat($('sendAmt').value);
+  if(!to||!a){toast('Add a recipient and amount');return}
+  if(S.lastSend&&S.lastSend.n===to&&S.lastSend.a===a&&Date.now()-(S.lastSend.ts||0)<60000){
+    openModal('<h3>Wait — possible duplicate</h3><div class="mut">You sent $'+money(a)+' to '+to+' less than a minute ago. Send it again?</div><button class="bigbtn" onclick="confirmDupSend()">Yes, send again</button><button class="bigbtn ghost" style="margin-top:10px" onclick="closeModal()">No, cancel</button>');
+    return;
+  }
+  if(!S.net){
+    S.txs.unshift({d:'Today',t:'To '+to+' · queued',a:-a,i:'↗️',k:'pend',st:'pending',fee:2.99});
+    S.lastSend={n:to,a:a,ts:Date.now()};
+    $('sendTo').value='';$('sendAmt').value='';
+    save();render();toast('No data. Send queued — it goes out the second data returns. No money moved yet.');
+    return;
+  }
+  if(a+2.99>S.balance){ failSend(to,a,'Not enough balance'); toast('Send failed: not enough balance. No money moved.'); return; }
+  S.balance-=(a+2.99);S.txs.unshift({d:'Today',t:'To '+to,a:-a,i:'↗️',k:'out'});
+  S.txs.unshift({d:'Today',t:'Send fee',a:-2.99,i:'💸',k:'out'});
+  if(S._dupOk){S.txs[1].st='duplicate';S._dupOk=false;}
+  S.lastSend={n:to,a:a,ts:Date.now()};earnBack(a);
+  $('sendTo').value='';$('sendAmt').value='';
+  save();render();toast('Sent $'+money(a)+' to '+to+'. Instant.');
+}
+
+/* ELDER MODE + STACK POT + AIRTIME + BILLS + CASHBACK */
+function applyElder(){document.body.classList.toggle('elder',!!S.elder);const a=$('elderLbl');if(a)a.textContent=S.elder?'Normal size':'Elder size';const b=$('ezElder');if(b)b.textContent=S.elder?'Make text normal':'Make everything bigger';}
+function toggleElder(){S.elder=!S.elder;save();applyElder();toast(S.elder?'Elder size on. Bigger buttons, bigger text, everywhere.':'Back to normal size.');}
+function earnBack(a){S.cash=Math.round((S.cash+a*0.01)*100)/100;}
+function redeemCash(){if(S.cash<=0){toast('No Stack Cash yet. It builds as you pay for things.');return}const c=S.cash;S.balance+=c;S.cash=0;S.txs.unshift({d:'Today',t:'Stack Cash redeemed',a:c,i:'🎁',k:'in'});save();render();if($('cashTop'))renderTopup();if($('cashBill'))renderBills();toast('$'+money(c)+' moved to your balance. Instant.');}
+const TELCOS=['MTN','Airtel','Glo','9mobile'];
+const TOPS=[{label:'$5 airtime',kind:'air',amt:5,price:5},{label:'$10 airtime',kind:'air',amt:10,price:10},{label:'$20 airtime',kind:'air',amt:20,price:20},{label:'Data 1GB',kind:'data',amt:1,price:2},{label:'Data 3GB',kind:'data',amt:3,price:5},{label:'Data 10GB',kind:'data',amt:10,price:12}];
+function renderTopup(){
+  $('telcoChips').innerHTML=TELCOS.map(t=>'<button class="pick'+(S.telco===t?' on':'')+'" onclick="pickTelco(\''+t+'\')">'+t+'</button>').join('');
+  $('topAmts').innerHTML=TOPS.map((p,i)=>'<button class="pick'+(S.topSel&&S.topSel.label===p.label?' on':'')+'" onclick="pickTop('+i+')">'+p.label+(p.kind==='data'?' · $'+p.price:'')+'</button>').join('');
+  $('topSel').textContent=S.topSel?('Ready: '+S.topSel.label+' on '+S.telco+' · lands the second you tap'):'Pick a network and an amount.';
+}
+function pickTelco(t){S.telco=t;save();renderTopup();}
+function pickTop(i){S.topSel=TOPS[i];save();renderTopup();}
+function doTopup(){
+  const s=S.topSel;if(!s){toast('Pick an amount first');return}
+  if(s.price>S.balance){toast('Not enough balance');return}
+  S.balance-=s.price;earnBack(s.price);
+  S.txs.unshift({d:'Today',t:(s.kind==='air'?s.amt+' airtime':s.amt+'GB data')+' · '+S.telco,a:-s.price,i:'📲',k:'out'});
+  save();render();renderTopup();
+  toast(s.label+' on '+S.telco+'. Instant. +$'+money(s.price*0.01)+' Stack Cash.');
+}
+const BILLS=[{n:'Electricity · IKEDC',price:30},{n:'Electricity · EKEDC',price:30},{n:'Cable TV · DStv',price:25},{n:'Cable TV · GOtv',price:12},{n:'Water bill',price:8}];
+function renderBills(){
+  $('billList').innerHTML=BILLS.map((b,i)=>'<div class="rowline"><div class="avatar">💡</div><div class="grow"><b>'+b.n+'</b><div class="dim">Paid instantly · you earn 1% back</div></div><button class="pill blue" onclick="doBill('+i+')">Pay $'+b.price+'</button></div>').join('');
+  $('cashBill').textContent=money(S.cash);
+}
+function doBill(i){
+  const b=BILLS[i];if(b.price>S.balance){toast('Not enough balance');return}
+  S.balance-=b.price;earnBack(b.price);
+  S.txs.unshift({d:'Today',t:b.n,a:-b.price,i:'💡',k:'out'});
+  save();render();renderBills();
+  toast(b.n+' paid. Instant. +$'+money(b.price*0.01)+' Stack Cash.');
+}
+function renderPot(){
+  const interest=Math.round(S.pot.bal*0.25/365*100)/100;
+  $('potBal').textContent=money(S.pot.bal);
+  $('potInt').textContent='$'+money(interest);
+  const t=$('potAuto');if(t)t.textContent='Auto-grow: '+(S.pot.auto?'ON · $1 moves in every day':'OFF · tap to turn on');
+}
+function potAdd(a){if(a>S.balance){toast('Not enough balance');return}S.balance-=a;S.pot.bal+=a;S.txs.unshift({d:'Today',t:'Stack Pot savings',a:-a,i:'🏦',k:'out'});save();render();renderPot();toast('$'+money(a)+' into your pot. It grows from today.');}
+function potWithdraw(){if(S.pot.bal<=0){toast('Your pot is empty. Add money first.');return}const b=S.pot.bal;S.balance+=b;S.pot.bal=0;S.txs.unshift({d:'Today',t:'Stack Pot withdrawal',a:b,i:'🏦',k:'in'});save();render();renderPot();toast('$'+money(b)+' back in your balance. Instant, no penalty.');}
+function potAuto(){S.pot.auto=!S.pot.auto;save();renderPot();toast(S.pot.auto?'Auto-grow on. $1 moves to your pot every day.':'Auto-grow off.');}
+function easySpeak(){
+  const t=S.txs[0];
+  const msg='Your money is '+money(S.balance)+' dollars.'+(t?' Your last move was '+plainName(t)+', '+Math.abs(t.a)+' dollars.':'');
+  try{const u=new SpeechSynthesisUtterance(msg);speechSynthesis.speak(u);}catch(e){}
+  toast(msg);
+}
+function easyAgain(){
+  const l=S.lastSend;if(!l){easySend();return}
+  if(l.a>S.balance){toast('Not enough money for that');return}
+  S.balance-=l.a;earnBack(l.a);
+  S.txs.unshift({d:'Today',t:'Money sent to '+l.n,a:-l.a,i:'💸',k:'out'});
+  save();render();renderEasy();
+  toast('Sent $'+money(l.a)+' to '+l.n+'. Instant.');
+}
+
+/* GIGS */
+function renderGigs(){
+  $('gigList').innerHTML=S.gigs.map((g,i)=>
+    '<div class="gigrow"><div class="avatar">'+g.icon+'</div><div class="grow"><b>'+g.name+'</b><div class="dim">'+(g.connected?'Connected · payout instant':'Not connected')+(g.pending?' · $'+money(g.pending)+' pending':'')+'</div></div><button class="pill '+(g.connected?'mint':'blue')+'" onclick="toggleGig('+i+')">'+(g.connected?'On':'Link')+'</button></div>').join('');
+}
+function toggleGig(i){
+  const g=S.gigs[i]; g.connected=!g.connected;
+  if(g.connected&&g.pending>0){
+    S.balance+=g.pending; S.txs.unshift({d:'Today',t:g.name+' payout',a:g.pending,i:g.icon,k:'gig'});
+    const cut=Math.round(g.pending*(S.autoPct||10))/100;
+    if(cut>0&&S.jars[0]){S.balance-=cut;S.jars[0].saved+=cut;S.txs.unshift({d:'Today',t:'Auto-save · '+S.jars[0].name,a:-cut,i:'🤖',k:'out'});}
+    g.pending=0;
+  }
+  save();render();renderGigs();toast(g.connected?g.name+' connected. Pending paid out.':g.name+' disconnected.');
+}
+
+/* CRYPTO */
+function renderCrypto(){
+  $('coinList').innerHTML=S.coins.map((c,i)=>{
+    const h=(S.holdings[c.sym]||0)*c.p;
+    return '<div class="rowline"><div class="avatar">'+(c.sym==='BTC'?'₿':'Ξ')+'</div><div class="grow"><b>'+c.name+'</b><div class="dim">$'+money(c.p)+' · 1% fee · you hold $'+money(h)+'</div></div><button class="pill blue" onclick="buyCoin('+i+')">Buy</button></div>';
+  }).join('');
+}
+function buyCoin(i){
+  const c=S.coins[i];
+  openModal('<h3>Buy '+c.sym+'</h3><div class="mut">1% flat fee. No spread games.</div><div class="field"><label>USD</label><input id="coinUsd" type="number" value="50"></div><button class="bigbtn" onclick="doBuyCoin('+i+')">Buy</button>');
+}
+function doBuyCoin(i){
+  const c=S.coins[i], usd=parseFloat($('coinUsd').value)||0, cost=usd*1.01;
+  if(cost>S.balance){toast('Not enough balance');return}
+  S.balance-=cost; S.holdings[c.sym]=(S.holdings[c.sym]||0)+usd/c.p;
+  S.txs.unshift({d:'Today',t:'Bought '+c.sym,a:-cost,i:'₿',k:'out'});
+  closeModal();save();render();renderCrypto();toast('Bought $'+money(usd)+' of '+c.sym+' for $'+money(cost)+'.');
+}
+
+/* ACTIVITY */
+function renderTx(){
+  const f=txFilter, list=S.txs.filter(t=>f==='all'||t.k===f||(f==='in'&&t.a>0)||(f==='out'&&t.a<0));
+  $('txAll').innerHTML=list.map(txRow).join('')||'<div class="dim" style="padding:8px 0">Nothing here.</div>';
+  const inn=S.txs.filter(t=>t.a>0).reduce((a,b)=>a+b.a,0), out=S.txs.filter(t=>t.a<0).reduce((a,b)=>a+b.a,0);
+  $('weeklySum').innerHTML='<b style="font-size:14px">This week, plainly</b><p class="mut" style="margin-top:6px">You brought in $'+money(inn)+' and spent $'+money(Math.abs(out))+'. Bills coming: $'+money(S.billers.reduce((a,b)=>a+b.amt,0))+'. '+(S.ladder.on?'Your ladder locked $'+S.ladder.weekly+' for Friday.':'Earnings swing week to week; the paycheck ladder would fix that.')+'</p>';
+}
+function filterTx(f,btn){
+  txFilter=f;
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('on',b===btn));
+  renderTx(); $('weeklySum').classList.toggle('hide',f!=='all');
+}
+
+/* BILLS */
+function renderBills(){
+  $('billList').innerHTML=S.billers.map((b,i)=>
+    '<div class="rowline"><div class="avatar">'+b.emoji+'</div><div class="grow"><b>'+b.name+'</b><div class="dim">$'+b.amt+' · '+b.due+'</div></div><button class="pill blue" onclick="payBill('+i+')">Pay</button></div>').join('');
+}
+function payBill(i){
+  const b=S.billers[i];
+  if(S.balance<b.amt){toast('Not enough balance. The ladder can cover this.');return}
+  S.balance-=b.amt;S.txs.unshift({d:'Today',t:b.name+' bill',a:-b.amt,i:b.emoji,k:'out'});
+  b.due='next month';save();render();renderBills();toast(b.name+' paid.');
+}
+
+/* REMIT */
+function updRemit(){
+  const c=$('remitCountry').value.replace(/[^\w\s]/g,'').trim(), amt=parseFloat($('remitAmt').value)||0;
+  const r=rates[c]||1; $('remitOut').textContent=curs[c]+' '+money(amt*r);
+}
+function doRemit(){
+  const c=$('remitCountry').value.replace(/[^\w\s]/g,'').trim(), amt=parseFloat($('remitAmt').value)||0;
+  if(amt+2.99>S.balance){toast('Not enough balance');return}
+  S.balance-=(amt+2.99);S.txs.unshift({d:'Today',t:'Remit · '+c,a:-amt,i:'🌍',k:'out'});
+  save();render();toast('Sent to '+c+'. Rate locked for 24h.');
+}
+
+/* ADD CASH */
+function renderAdd(){
+  const opts=[['🏦','Link bank','Instant · no fee'],['📸','Check deposit','1 business day'],['💵','Cash at agent','Map nearby · 1% fee']];
+  $('addList').innerHTML=opts.map(o=>'<div class="rowline"><div class="avatar">'+o[0]+'</div><div class="grow"><b>'+o[1]+'</b><div class="dim">'+o[2]+'</div></div><button class="pill blue" onclick="toast(\'Demo: in the live version this connects your bank.\')">Start</button></div>').join('');
+}
+
+/* NOTIFS */
+function renderNotifs(){
+  $('notifList').innerHTML=S.notifs.map(n=>'<div class="rowline"><div class="avatar">🔔</div><div class="grow"><b>'+n.t+'</b><div class="dim">'+n.d+'</div></div></div>').join('');
+  S.notifs.forEach(n=>n.read=true);
+}
+
+/* ASK STACK */
+function askStack(){
+  const q=$('askInput').value.trim(); if(!q)return;
+  $('askInput').value='';
+  $('chatBox').innerHTML+='<div class="rowline"><div class="avatar">🧑</div><div class="grow"><b>You</b><div class="dim">'+q+'</div></div></div>';
+  setTimeout(()=>{
+    const a=answer(q);
+    $('chatBox').innerHTML+='<div class="rowline"><div class="avatar">✨</div><div class="grow"><b>Stack</b><div class="dim">'+a+'</div></div></div>';
+    $('chatBox').scrollTop=99999;
+  },600);
+}
+function answer(q){
+  q=q.toLowerCase();
+  const w=weather();
+  if(q.includes('week')||q.includes('forecast')||q.includes('weather'))return 'This week: '+w.head+' vs your $'+money(w.avg)+' average. Bills coming: '+S.billers.map(b=>b.name+' $'+b.amt).join(', ')+'. Open Salary weather for the full picture.';
+  if(q.includes('late')||q.includes('client')||q.includes('invoice'))return 'Your shield covers logged invoices. '+S.invoices.filter(i=>i.status==='overdue').length+' overdue right now. Open Late-payer shield to claim.';
+  if(q.includes('salary')||q.includes('ladder')||q.includes('steady'))return 'The paycheck ladder pays you the same amount every Friday. You\'re '+(S.ladder.on?'on, at $'+S.ladder.weekly+'/week.':'off — turn it on to stop income swings.');
+  if(q.includes('spend')||q.includes('save'))return 'You have $'+money(S.balance)+' to spend and $'+money(S.jars.reduce((a,b)=>a+b.saved,0))+' saved across jars. Auto-save moves $2/day.';
+  return 'I track your income rhythm, invoices and bills. Ask about your week, the ladder, the shield, or how much is safe to spend.';
+}
+
+/* BANK BOT */
+function botMsg(t,me){S.bot.log.push({t:t,me:me});if(S.bot.log.length>40)S.bot.log=S.bot.log.slice(-40);save();renderBot();}
+function renderBot(){
+  const ch=['WhatsApp','Telegram','Instagram','X'];
+  $('botChannels').innerHTML=ch.map(c=>'<button data-c="'+c+'" class="'+(S.bot.channels[c]?'on':'')+'" onclick="linkChan(this)">'+(S.bot.channels[c]?'✓ ':'')+c+'</button>').join('');
+  $('botBox').innerHTML=S.bot.log.map(m=>'<div class="bubble'+(m.me?' me':'')+'"><div class="bav">'+(m.me?'🧑':'🤖')+'</div><div class="btxt">'+m.t+'</div></div>').join('');
+  $('botBox').scrollTop=99999;
+}
+function linkChan(el){
+  const c=el.dataset.c; S.bot.channels[c]=!S.bot.channels[c]; save(); renderBot();
+  toast(c+(S.bot.channels[c]?' linked. The bot answers there too.':' unlinked.'));
+}
+function botSend(){
+  const q=$('botInput').value.trim(); if(!q)return;
+  $('botInput').value=''; botMsg(q,true);
+  const low=q.toLowerCase();
+  if(low.includes('cancel')&&S.bot.draft){S.bot.draft=null;save();botMsg('Draft cancelled. Nothing moved.',false);return;}
+  if(/(urgent|otp|\bpin\b|password|verify me|code:)/.test(low)){
+    botMsg('🛡 That phrasing is how hijackers talk. I blocked it and flagged the request. If this was really you, do it inside the app instead. Nothing was moved.',false);
+    S.notifs.unshift({t:'🛡 Bot blocked a suspicious request',d:'Scam phrases detected in a chat instruction. No money moved.'});
+    save();render();return;
+  }
+  if(low.includes('balance')||low.includes('how much do i have')){
+    botMsg('You have $'+money(S.balance)+' to spend and $'+money(S.jars.reduce((a,b)=>a+b.saved,0))+' in jars. Bills coming: '+S.billers.map(b=>b.name+' $'+b.amt+' '+b.due).join(', ')+'.',false);return;
+  }
+  if(low.startsWith('help')){
+    botMsg('I can check your balance, draft "send 100 to @name" or "withdraw 50", read your salary weather, and cancel drafts. I never ask for passwords, PINs or codes, and I never move money without your approval on this device.',false);return;
+  }
+  const ms=low.match(/send\s+([\d.]+)\s+to\s+([@\w.]+)/), mw=low.match(/withdraw\s+([\d.]+)/), mwx=low.match(/(week|weather|forecast)/);
+  if(ms){
+    const a=parseFloat(ms[1]), to=ms[2];
+    if(a+2.99>S.balance){botMsg('You have $'+money(S.balance)+'. That draft is above your balance, so I held it.',false);return;}
+    botDraft({kind:'send',amt:a,to:to});return;
+  }
+  if(mw){
+    const a=parseFloat(mw[1]);
+    if(a>S.balance){botMsg('You have $'+money(S.balance)+'. I held that draft.',false);return;}
+    botDraft({kind:'withdraw',amt:a});return;
+  }
+  if(mwx){const w=weather();botMsg('This week: '+w.head+' versus your $'+money(w.avg)+' average. '+(S.ladder.on?'Your ladder locks $'+S.ladder.weekly+' for Friday.':'Turn on the paycheck ladder to smooth the swings.'),false);return;}
+  botMsg('Say "help" to see what I can do.',false);
+}
+function botDraft(d){
+  S.bot.draft=d; save();
+  const label=d.kind==='send'?('Send $'+money(d.amt)+' to '+d.to):('Withdraw $'+money(d.amt)+' at any ATM');
+  botMsg('✍️ Drafted: '+label+' (fee $2.99). Money does NOT move from chat. Approve on your device, or say "cancel".',false);
+  openModal('<h3>🔐 Approve on your device</h3><div class="mut">The vault step. Chat never carries the keys.</div><div class="card tight" style="margin-bottom:14px"><b>'+label+'</b><div class="dim">Drafted by Stack bot · total $'+money(d.amt+2.99)+'</div></div><button class="bigbtn" onclick="botApprove()">Approve with passkey 👆</button><button class="bigbtn ghost" style="margin-top:10px" onclick="botReject()">Reject</button>');
+}
+function botApprove(){
+  const d=S.bot.draft; if(!d)return;
+  if(d.kind==='send'){
+    S.balance-=(d.amt+2.99);
+    S.txs.unshift({d:'Today',t:'Bot send · '+d.to,a:-d.amt,i:'💬',k:'out'});
+    S.txs.unshift({d:'Today',t:'Send fee',a:-2.99,i:'💸',k:'out'});
+  } else {
+    S.balance-=d.amt;
+    S.txs.unshift({d:'Today',t:'ATM withdrawal · via bot',a:-d.amt,i:'🏧',k:'out'});
+  }
+  S.bot.draft=null;
+  S.notifs.unshift({t:'✅ Approved on device',d:'Your chat-drafted '+d.kind+' of $'+money(d.amt)+' completed. Keys never left this device.'});
+  closeModal();save();render();renderBot();
+  toast('Approved and done. The keys never left this device.');
+}
+function botReject(){S.bot.draft=null;save();closeModal();botMsg('Draft rejected. Nothing moved.',false);}
+
+/* MULTI-CURRENCY */
+const FXR={USD:1,NGN:1530,GBP:0.78,EUR:0.92};
+const FXSYM={USD:'$',NGN:'₦',GBP:'£',EUR:'€'};
+function fxGet(c){return c==='USD'?S.balance:(S.fx[c]||0)}
+function fxSet(c,v){if(c==='USD')S.balance=v;else S.fx[c]=v}
+function renderFx(){
+  $('fxUsd').textContent=money(S.balance);
+  $('fxNgn').textContent=money(S.fx.NGN||0);
+  $('fxGbp').textContent=money(S.fx.GBP||0);
+  $('fxEur').textContent=money(S.fx.EUR||0);
+  updConvert();
+}
+function updConvert(){
+  const f=$('fxFrom').value, t=$('fxTo').value, a=parseFloat($('fxAmt').value)||0;
+  const out=a/FXR[f]*FXR[t], fee=S.card.gold?0:0.005;
+  $('fxOut').textContent=FXSYM[t]+' '+money(out*(1-fee));
+  $('fxRate').textContent='1 '+f+' = '+FXR[t]/FXR[f]+' '+t+(S.card.gold?' · 0% fee with Gold':' · 0.5% fee, free with Gold');
+}
+function doConvert(){
+  const f=$('fxFrom').value, t=$('fxTo').value, a=parseFloat($('fxAmt').value)||0;
+  if(f===t){toast('Pick two different currencies');return}
+  if(fxGet(f)<a){toast('Not enough '+f);return}
+  const out=a/FXR[f]*FXR[t], fee=S.card.gold?0:0.005;
+  fxSet(f,fxGet(f)-a); fxSet(t,fxGet(t)+out*(1-fee));
+  S.txs.unshift({d:'Today',t:'FX · '+f+'→'+t,a:(f==='USD'?-a:a/FXR[f]),i:'🌐',k:'out'});
+  save();render();renderFx();
+  toast('Converted to '+FXSYM[t]+' '+money(out*(1-fee))+(S.card.gold?' at 0% fee.':'.'));
+}
+
+/* INVESTING */
+const ASSETS=[{t:'AAPL',n:'Apple',p:232.5},{t:'TSLA',n:'Tesla',p:410.2},{t:'SPY',n:'S&P 500 fund',p:592.4},{t:'NGXP',n:'Nigeria top-40 basket',p:12.4},{t:'GOLD',n:'Gold tracker',p:2650}];
+function pfValue(){return ASSETS.reduce((s,a)=>s+(S.portfolio[a.t]||0)*a.p,0)}
+function renderInvest(){
+  $('pfVal').textContent=money(pfValue());
+  const auto=pfAutoOn();$('pfAuto').textContent=auto?'On':'Off';
+  $('assetList').innerHTML=ASSETS.map((a,i)=>{
+    const h=(S.portfolio[a.t]||0)*a.p;
+    return '<div class="rowline"><div class="avatar">'+(a.t==='SPY'?'📊':a.t==='GOLD'?'🥇':a.t==='NGXP'?'🌍':'📈')+'</div><div class="grow"><b>'+a.n+'</b><div class="dim">'+a.t+' · $'+money(a.p)+(h?' · you hold $'+money(h):'')+'</div></div><div style="display:flex;gap:6px"><button class="pill blue" onclick="trade('+i+',1)">Buy</button><button class="pill '+(h?'gold':'red')+'" onclick="trade('+i+',-1)" '+(h?'':'disabled style="opacity:.4"')+'>Sell</button></div></div>';
+  }).join('');
+}
+function pfAutoOn(){return !!S.pfAuto}
+function trade(i,side){
+  const a=ASSETS[i];
+  openModal('<h3>'+(side>0?'Buy ':'Sell ')+a.n+'</h3><div class="mut">'+a.t+' at $'+money(a.p)+' · demo prices</div><div class="field"><label>USD</label><input id="trAmt" type="number" value="'+(side>0?100:Math.max(1,Math.round((S.portfolio[a.t]||0)*a.p)))+'" inputmode="decimal"></div><button class="bigbtn" onclick="doTrade('+i+','+side+')">'+(side>0?'Buy':'Sell')+'</button>');
+}
+function doTrade(i,side){
+  const a=ASSETS[i], usd=parseFloat($('trAmt').value)||0;
+  const units=usd/a.p;
+  if(side>0){
+    if(usd>S.balance){toast('Not enough balance');return}
+    S.balance-=usd; S.portfolio[a.t]=(S.portfolio[a.t]||0)+units;
+    S.txs.unshift({d:'Today',t:'Bought '+a.t,a:-usd,i:'📈',k:'out'});
+  } else {
+    if(usd>(S.portfolio[a.t]||0)*a.p+0.01){toast('You hold less than that');return}
+    S.portfolio[a.t]-=units; S.balance+=usd;
+    S.txs.unshift({d:'Today',t:'Sold '+a.t,a:usd,i:'📈',k:'in'});
+  }
+  closeModal();save();render();renderInvest();
+  toast((side>0?'Bought ':'Sold ')+units.toFixed(4)+' '+a.t+'.');
+}
+
+/* ASK CHIPS */
+function askChip(q){$('askInput').value=q;askStack();}
+
+/* VERIFY ONCE */
+function renderId(){$('proofCount').textContent=S.proofs||0;}
+function shareProof(){
+  const code='STK-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  S.proofs=(S.proofs||0)+1;save();renderId();
+  openModal('<h3>Proof generated</h3><div class="okbox">Show this code instead of your documents. It confirms: name verified, 18+, account real. Nothing else is revealed. It dies in 24 hours.</div><div class="stat" style="text-align:center"><small>ONE-TIME PROOF</small><b style="font-size:22px;letter-spacing:2px">'+code+'</b></div><button class="bigbtn" onclick="closeModal()">Done</button>');
+}
+
+/* MONEY RULES */
+const RULES=[
+ {t:'Payout splitter',d:'Every gig payout: auto-save % to your first jar',on:true},
+ {t:'Overflow sweep',d:'Balance over $500: sweep $100 to Emergencies',on:false},
+ {t:'Bill shield',d:'3 days before a bill: hold the exact amount aside',on:true},
+ {t:'Expiring bonus',d:'Any windfall: 50% locked away for 30 days',on:false}
+];
+function renderRules(){
+  $('ruleList').innerHTML=S.rules.map((r,i)=>'<div class="card"><div class="chip-toggle" onclick="toggleRule('+i+')"><div><b style="font-size:14px">'+r.t+'</b><div class="dim">'+r.d+'</div></div><div class="switch'+(r.on?' on':'')+'"></div></div></div>').join('');
+}
+function toggleRule(i){S.rules[i].on=!S.rules[i].on;save();renderRules();toast(S.rules[i].t+(S.rules[i].on?' armed.':' off.'));}
+function runRules(){
+  let ran=0,moves=0;
+  if(S.rules[1].on&&S.balance>500){
+    const jar=S.jars.find(j=>j.name==='Emergencies')||S.jars[0];
+    if(jar){S.balance-=100;jar.saved+=100;S.txs.unshift({d:'Today',t:'Rule · Overflow sweep → '+jar.name,a:-100,i:'⚙️',k:'out'});ran++;moves++;}
+  }
+  if(S.rules[2].on&&S.bills.length){ran++;}
+  if(S.rules[3].on){ran++;}
+  if(S.rules[0].on){ran++;}
+  save();render();
+  toast(ran?ran+' rule'+(ran>1?'s':'')+' ran'+(moves?', $100 swept to savings.':'.'):'Nothing to run yet.');
+}
+
+/* AJO CIRCLES */
+function trustPill(t){
+  const col=t>=95?'#2ee6a8':t>=85?'#ff9f2e':'#ff5c7c';
+  return '<span style="color:'+col+';font-weight:800;font-size:13px">★ '+t+'</span>';
+}
+function renderCircles(){
+  const c=S.circle;
+  if(c.escrow<c.amt)c.escrow=c.amt; // escrow must always cover at least one share
+  $('circlePot').textContent=money(c.pot);
+  $('circleRound').textContent=c.round;
+  $('circleOf').textContent=c.members.length;
+  $('circleEscrow').textContent=money(c.escrow);
+  $('circleAmt').textContent=c.amt;
+  $('circleMembers').innerHTML=c.members.map((m,i)=>{
+    const paid=i<c.paid;
+    const missedBtn=(!paid&&i!==0)?'<button class="pill red" style="margin-top:4px" onclick="missedPayment('+i+')">Missed</button>':'';
+    const state=paid?'Paid ✓':(m.missed?'Missed · escrow covered':'Waiting');
+    const col=paid?'#2ee6a8':(m.missed?'#ff5d73':'');
+    return '<div class="rowline"><div class="avatar">'+(i===0?'🫵':i%2?'🧑🏾':'🧕🏾')+'</div><div class="grow"><b>'+m.n+(i===0?' (you)':'')+'</b><div class="dim">Draws #'+(i+1)+' in the order</div></div><div style="text-align:right">'+trustPill(m.trust)+'<div style="font-size:11px;margin-top:2px;color:'+col+'">'+state+'</div>'+missedBtn+'</div></div>';
+  }).join('');
+  $('circleSchedule').innerHTML=c.members.map((m,i)=>{
+    const r=i+1, done=c.round>r, cur=c.round===r;
+    return '<div class="flex" style="justify-content:space-between;padding:7px 0"><span class="'+(done?'dim':'')+'"><b>'+m.n+'</b> · Round '+r+'</span><span class="'+(done?'dim':cur?'check':'dim')+'" style="font-size:12px">'+(done?'Paid out ✓':cur?'Next up':'Scheduled')+'</span></div>';
+  }).join('');
+  $('circleChat').innerHTML=c.msgs.map(x=>'<div style="margin:6px 0"><span class="dim" style="font-size:11px">'+x.w+'</span><div class="bubble'+(x.me?' me':'')+'" style="max-width:85%">'+x.t+'</div></div>').join('');
+  const rec=S.txs.filter(t=>t.t.indexOf('Ajo')===0).slice(0,5);
+  $('circleReceipts').innerHTML=rec.length?rec.map(t=>'<div class="flex" style="justify-content:space-between;padding:5px 0"><span class="mut" style="font-size:12px">'+t.d+' · '+t.t.split(' · receipt')[0]+'</span><b>'+(t.a<0?'-':'+')+'$'+money(Math.abs(t.a))+'</b></div>').join(''):'<div class="dim">No receipts yet this cycle.</div>';
+}
+function toggleC(k,el){
+  S.circle[k]=!S.circle[k];
+  el.querySelector('.switch').classList.toggle('on',S.circle[k]);
+  save();renderCircles();
+  toast(k==='auto'?'Auto-contribute '+(S.circle[k]?'on: your share deducts itself each cycle.':'off.'):'Reminders '+(S.circle[k]?'on.':'off.'));
+}
+function sendChat(){
+  const v=($('chatInput').value||'').trim();if(!v)return;
+  S.circle.msgs.push({w:'You',t:v,me:true});
+  const others=S.circle.members.slice(1).map(m=>m.n);
+  const w=others[Math.floor(Math.random()*others.length)];
+  const reps=['Seen 👍','I go pay before Friday, no wahala','Oya na, confirmed','Awaiting my payout, I dey come'];
+  S.circle.msgs.push({w:w,t:reps[Math.floor(Math.random()*reps.length)],me:false});
+  $('chatInput').value='';save();renderCircles();
+}
+function contributeCircle(){
+  const c=S.circle;
+  if(S.balance<c.amt){toast('Not enough balance');return}
+  if(c.paid>=c.members.length){toast('Everyone has paid. Run the draw.');return}
+  S.balance-=c.amt;c.pot+=c.amt;c.paid++;
+  S.txs.unshift({d:'Today',t:'Ajo contribution · Round '+c.round+' · receipt RCP-'+Math.random().toString(36).slice(2,7).toUpperCase(),a:-c.amt,i:'🤝',k:'out'});
+  save();render();renderCircles();
+  toast('Receipted. '+c.paid+' of '+c.members.length+' paid this round.');
+}
+function drawPot(){
+  const c=S.circle;
+  if(c.paid<c.members.length){toast('Wait until everyone contributes ('+c.paid+'/'+c.members.length+')');return}
+  const winner=c.members[(c.round-1)%c.members.length].n, won=c.pot;
+  if(winner==='You'){S.balance+=won;S.txs.unshift({d:'Today',t:'Ajo payout · you took the pot',a:won,i:'🤝',k:'in'});}
+  c.members.forEach(m=>{m.trust=Math.min(100,m.trust+1);m.missed=false;});
+  c.round++;c.paid=0;c.pot=0;
+  if(c.round>c.members.length)c.round=1;
+  save();render();renderCircles();
+  toast(winner==='You'?'You took the pot: $'+money(won)+'. Trust scores rose for on-time payers.':winner+' took the pot ($'+money(won)+'). New round started.');
+}
+
+/* MACHINE WALLETS */
+function renderMachines(){
+  $('machineList').innerHTML=S.machines.map((m,i)=>{
+    const pct=Math.min(100,Math.round(m.spent/m.budget*100));
+    return '<div class="card"><div class="rowline"><div class="avatar">'+m.icon+'</div><div class="grow"><b>'+m.n+(m.frozen?' · frozen':'')+'</b><div class="dim">$'+money(m.budget-m.spent)+' left of $'+money(m.budget)+'</div></div></div><div class="bar"><i style="width:'+pct+'%;'+(m.frozen?'background:#ff5c7c':'')+'"></i></div><div class="flex" style="gap:8px"><button class="pill blue" onclick="machineTopup('+i+')">+ $20</button><button class="pill '+(m.frozen?'gold':'red')+'" onclick="machineFreeze('+i+')">'+(m.frozen?'Unfreeze':'Freeze')+'</button></div></div>';
+  }).join('');
+}
+function machineTopup(i){
+  if(S.balance<20){toast('Not enough balance');return}
+  S.balance-=20;S.machines[i].budget+=20;
+  S.txs.unshift({d:'Today',t:'Machine wallet · '+S.machines[i].n,a:-20,i:'🤖',k:'out'});
+  save();render();renderMachines();toast('Topped up '+S.machines[i].n+'.');
+}
+function machineFreeze(i){
+  S.machines[i].frozen=!S.machines[i].frozen;save();renderMachines();
+  toast(S.machines[i].n+(S.machines[i].frozen?' frozen. It can spend nothing.':' unfrozen.'));
+}
+function newMachine(){
+  openModal('<h3>New machine wallet</h3><div class="field"><label>NAME</label><input id="mName" placeholder="e.g. Delivery bike"></div><div class="field"><label>BUDGET (USD)</label><input id="mBudget" type="number" value="50" inputmode="decimal"></div><button class="bigbtn" onclick="doNewMachine()">Create & fund</button>');
+}
+function doNewMachine(){
+  const n=($('mName').value||'').trim()||'Machine wallet';
+  const b=Math.max(1,parseFloat($('mBudget').value)||0);
+  if(b>S.balance){toast('Not enough balance to fund it');return}
+  S.balance-=b;S.machines.push({n:n,icon:'🔌',budget:b,spent:0,frozen:false});
+  S.txs.unshift({d:'Today',t:'Machine wallet funded · '+n,a:-b,i:'🤖',k:'out'});
+  closeModal();save();render();renderMachines();
+  toast(n+' can now spend up to $'+money(b)+'. Never a cent more.');
+}
+
+/* EASY MODE */
+function plainName(t){
+  const s=t.t.toLowerCase();
+  if(s.indexOf('payout')>-1&&s.indexOf('ajo')===-1)return 'Money in from your work';
+  if(s.indexOf('ajo contribution')>-1)return 'Money into your savings circle';
+  if(s.indexOf('ajo payout')>-1)return 'Savings circle paid you';
+  if(s.indexOf('auto-save')>-1)return 'Moved to savings';
+  if(s.indexOf('bill')>-1)return 'Bill paid';
+  if(s.indexOf('fx')>-1)return 'Changed money to another currency';
+  if(s.indexOf('bought')>-1)return 'Invested some money';
+  if(s.indexOf('sold')>-1)return 'Took money out of investing';
+  if(s.indexOf('machine wallet')>-1)return 'Set aside for your machine';
+  if(s.indexOf('money sent')>-1)return t.t;
+  if(s.indexOf('sent')>-1)return 'Money you sent';
+  if(s.indexOf('received')>-1)return 'Money you received';
+  if(s.indexOf('added')>-1)return 'Money added';
+  return t.t;
+}
+function renderEasy(){
+  $('ezBal').textContent=money(S.balance);
+  const saved=S.jars.reduce((s,j)=>s+j.saved,0);
+  $('ezSafe').textContent='You also have $'+money(saved)+' saved safely.';
+  $('ezPass').innerHTML=S.txs.slice(0,8).map(t=>'<div class="ezrow"><span>'+plainName(t)+'</span><b class="amt" style="color:'+(t.a>0?'#2ee6a8':'var(--tx)')+'">'+(t.a>0?'+':'-')+'$'+money(Math.abs(t.a))+'</b></div>').join('');
+  const ag=$('ezAgain');if(ag){if(S.lastSend){ag.style.display='block';$('ezAgainName').textContent=S.lastSend.n}else{ag.style.display='none'}}
+}
+function easyOn(){S.easy=true;save();go('easy');}
+function easyBack(){S.easy=false;save();go('home');}
+function easySend(){
+  openModal('<h3 style="font-size:22px">Send money</h3><div class="field"><label style="font-size:15px">WHO ARE YOU SENDING TO?</label><input id="ezName" placeholder="For example: Mama" style="font-size:18px;padding:16px"></div><div class="field"><label style="font-size:15px">HOW MUCH? (DOLLARS)</label><input id="ezAmt" type="number" value="20" inputmode="decimal" style="font-size:18px;padding:16px"></div><button class="bigbtn" style="font-size:19px;padding:20px" onclick="doEasySend()">Send it</button>');
+}
+function doEasySend(){
+  const n=($('ezName').value||'').trim()||'a friend';
+  const a=parseFloat($('ezAmt').value)||0;
+  if(a<=0){toast('Type an amount first');return}
+  if(a>S.balance){toast('You do not have enough money for that');return}
+  S.balance-=a;
+  S.txs.unshift({d:'Today',t:'Money sent to '+n,a:-a,i:'💸',k:'out'});
+  S.lastSend={n:n,a:a,ts:Date.now()};earnBack(a);
+  closeModal();save();render();renderEasy();
+  toast('Sent. '+n+' got $'+money(a)+'. You have $'+money(S.balance)+' left.');
+}
+function easyVoice(){
+  openModal('<h3 style="font-size:22px">Press, then speak</h3><div class="dim" style="font-size:15px">In the real app this hears you in Yoruba, Hausa, Igbo or Pidgin, and reads the answer out loud.</div><button class="ezopt" onclick="ezSay(0)">🎤 "What is my balance?"</button><button class="ezopt" onclick="ezSay(1)">🎤 "Send 20 dollars to Mama"</button><button class="ezopt" onclick="ezSay(2)">🎤 "How much did I save this month?"</button>');
+}
+function ezSay(i){
+  if(i===0){
+    openModal('<h3 style="font-size:22px">Your balance</h3><div class="easy-bal" style="font-size:38px">$'+money(S.balance)+'</div><div class="dim" style="font-size:17px">You have $'+money(S.jars.reduce((s,j)=>s+j.saved,0))+' more saved safely.</div><button class="bigbtn" style="font-size:19px" onclick="closeModal()">Thank you</button>');
+  } else if(i===1){
+    if(S.balance<20){toast('Not enough money to send 20');return}
+    S.balance-=20;S.txs.unshift({d:'Today',t:'Money sent to Mama',a:-20,i:'🎤',k:'out'});
+    save();render();renderEasy();
+    openModal('<h3 style="font-size:22px">Done ✅</h3><div class="okbox" style="font-size:17px">Mama got 20 dollars. Your money left is $'+money(S.balance)+'.</div><button class="bigbtn" style="font-size:19px" onclick="closeModal()">Thank you</button>');
+  } else {
+    openModal('<h3 style="font-size:22px">Your savings</h3><div class="easy-bal" style="font-size:38px">$'+money(S.jars.reduce((s,j)=>s+j.saved,0))+'</div><div class="dim" style="font-size:17px">That is everything you have put away.</div><button class="bigbtn" style="font-size:19px" onclick="closeModal()">Thank you</button>');
+  }
+}
+function easyStatement(){
+  const rows=S.txs.slice(0,10);
+  let tin=0,tout=0;
+  const lines=rows.map(t=>{if(t.a>0)tin+=t.a;else tout+=-t.a;return plainName(t)+'  ...  '+(t.a>0?'+':'-')+'$'+money(Math.abs(t.a))});
+  openModal('<h3 style="font-size:22px">My statement</h3><div class="card tight" style="font-size:15px;line-height:1.9">'+lines.join('<br>')+'</div><div class="flex" style="justify-content:space-between;margin-top:10px;font-size:17px"><span><b>Came in:</b> $'+money(tin)+'</span><span><b>Went out:</b> $'+money(tout)+'</span></div><button class="bigbtn" style="margin-top:14px;font-size:19px" onclick="easyShare()">Share or print</button>');
+}
+function easyShare(){toast('Statement ready. Print it or share it with anyone.')}
+/* easy home routing: when easy mode is on, Home lands here */
+const _goFull=go;
+go=function(t){ if(t==='home'&&S.easy){_goFull('easy');return} _goFull(t); };
+
+/* STACK ANYWHERE · NO-INTERNET BANKING */
+function renderOffline(){
+  $('netLbl').textContent=S.net?'On':'OFF';
+  $('queueCount').textContent='0.4s';
+  $('netBtn').textContent=S.net?'Turn data off (try it)':'Turn data back on';
+}
+function netToggle(){
+  S.net=!S.net;
+  if(S.net){settlePending();toast('Data is back.')}
+  else{toast('Data off. Sends queue safely and settle when data returns.')}
+  save();renderOffline();
+}
+function ussdMenu(){
+  openModal('<h3 style="font-size:22px">*7825#</h3><div class="dim" style="font-size:15px">Works on any phone. No data, no smartphone needed. This is the phone network, not the internet.</div><button class="ezopt" onclick="ussdAction(0)">1 · Check balance</button><button class="ezopt" onclick="ussdAction(1)">2 · Send money</button><button class="ezopt" onclick="ussdAction(2)">3 · Buy airtime</button><button class="ezopt" onclick="ussdAction(3)">4 · Last 3 transactions</button>');
+}
+function ussdAction(i){
+  if(i===0){openModal('<h3 style="font-size:22px">USSD reply</h3><div class="okbox" style="font-size:17px">ACCT BAL: $'+money(S.balance)+'. Saved: $'+money(S.jars.reduce((s,j)=>s+j.saved,0))+'.</div><button class="bigbtn" onclick="closeModal()">Done</button>');}
+  else if(i===1){openModal('<h3 style="font-size:22px">USSD · send money</h3><div class="field"><label style="font-size:15px">WHO?</label><input id="uzName" placeholder="e.g. Mama" style="font-size:18px;padding:16px"></div><div class="field"><label style="font-size:15px">AMOUNT (USD)</label><input id="uzAmt" type="number" value="20" inputmode="decimal" style="font-size:18px;padding:16px"></div><button class="bigbtn" onclick="ussdSend()">Send over USSD</button>');}
+  else if(i===2){openModal('<h3 style="font-size:22px">USSD · airtime</h3><div class="field"><label style="font-size:15px">AMOUNT (USD)</label><input id="uzAir" type="number" value="5" inputmode="decimal" style="font-size:18px;padding:16px"></div><button class="bigbtn" onclick="doUssdAirtime()">Buy airtime</button>');}
+  else{openModal('<h3 style="font-size:22px">USSD reply</h3><div class="okbox" style="font-size:16px">'+S.txs.slice(0,3).map(t=>'· '+plainName(t)).join('<br>')+'</div><button class="bigbtn" onclick="closeModal()">Done</button>');}
+}
+function ussdSend(){
+  const n=($('uzName').value||'').trim()||'a friend';const a=parseFloat($('uzAmt').value)||0;
+  if(a<=0){toast('Enter an amount');return}
+  if(a+1>S.balance){toast('Not enough balance');return}
+  S.balance-=a;
+  S.txs.unshift({d:'Today',t:'USSD transfer to '+n,a:-a,i:'📞',k:'out'});
+  closeModal();save();render();
+  toast('Sent over USSD. Zero data used.');
+}
+function doUssdAirtime(){
+  const a=parseFloat($('uzAir').value)||0;
+  if(a<=0||a>S.balance){toast('Not enough balance');return}
+  S.balance-=a;S.txs.unshift({d:'Today',t:'Airtime (USSD)',a:-a,i:'📱',k:'out'});
+  closeModal();save();render();
+  toast('Airtime loaded. Zero data used.');
+}
+function smsSend(){
+  openModal('<h3 style="font-size:22px">Bank by SMS</h3><div class="dim" style="font-size:15px">Text SEND 20 Mama to 7825. The confirmation comes back by SMS in seconds.</div><div class="field"><label style="font-size:15px">SEND TO</label><input id="smName" placeholder="e.g. Mama" style="font-size:18px;padding:16px"></div><div class="field"><label style="font-size:15px">AMOUNT (USD)</label><input id="smAmt" type="number" value="20" inputmode="decimal" style="font-size:18px;padding:16px"></div><button class="bigbtn" onclick="doSmsSend()">Send the SMS</button>');
+}
+function doSmsSend(){
+  const n=($('smName').value||'').trim()||'a friend';const a=parseFloat($('smAmt').value)||0;
+  if(a<=0){toast('Enter an amount');return}
+  if(a>S.balance){toast('Not enough balance');return}
+  S.balance-=a;S.txs.unshift({d:'Today',t:'SMS transfer to '+n,a:-a,i:'✉️',k:'out'});
+  closeModal();save();render();
+  toast('SMS sent. Your confirmation text is on its way.');
+}
+function qrPay(){
+  openModal('<h3 style="font-size:22px">Offline QR pay</h3><div class="okbox" style="font-size:15px">'+(S.net?'Tip: turn data off first to see true offline mode.':'No signal at all: your phone signs the payment. The merchant sees the money the second you press pay. Records sync quietly in the background.')+'</div><div class="field"><label style="font-size:15px">AMOUNT (USD, MAX 50)</label><input id="qrAmt" type="number" value="15" inputmode="decimal" style="font-size:18px;padding:16px"></div><button class="bigbtn" onclick="doQrPay()">Sign &amp; pay</button>');
+}
+function doQrPay(){
+  const a=parseFloat($('qrAmt').value)||0;
+  if(a<=0||a>50){toast('Offline QR is capped at $50');return}
+  if(a>S.balance){toast('Not enough balance');return}
+  S.balance-=a;earnBack(a);
+  S.txs.unshift({d:'Today',t:'Offline QR · Mama T Store'+(S.net?'':' · background sync'),a:-a,i:'🔗',k:S.net?'out':'pend'});
+  closeModal();save();render();
+  toast('Paid instantly. Records sync quietly in the background.');
+}
+
+/* MODAL + TOAST */
+function openModal(html){$('modalBox').innerHTML=html;$('modalBg').classList.remove('hide')}
+function closeModal(){$('modalBg').classList.add('hide')}
+function toast(t){const el=$('toastEl');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2600)}
+
+
+/* ===== Stack Premium v5 — ladder hero + edge cases ===== */
+function ladderMath(){
+  var L=S.ladder, cur=S.weekly[5]||0;
+  var avg=S.weekly.slice(0,5).reduce(function(a,b){return a+b;},0)/5;
+  var sweep=Math.max(0,Math.round((cur-avg)*0.6));
+  var jarsCut=Math.round(cur*(S.autoPct||10)/100);
+  var salary=L.on?Math.min(L.weekly,cur):L.weekly;
+  var buffer=L.on?sweep:0, jars=L.on?jarsCut:0;
+  var spend=Math.max(0,cur-salary-buffer-jars);
+  return {cur:cur,avg:avg,salary:salary,buffer:buffer,jars:jars,spend:spend,reserve:L.reserve||0,weeks:L.weekly?Math.floor((L.reserve||0)/L.weekly):0};
+}
+function nextFriday(){
+  var d=new Date(), add=(5-d.getDay()+7)%7||7, f=new Date(d.getTime()+add*864e5);
+  return f.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+}
+function renderLadderHero(){
+  var el=$('ladderHero'); if(!el) return;
+  var m=ladderMath(), L=S.ladder;
+  var pct=function(v){ return m.cur>0?Math.max(5,Math.round(v/m.cur*100)):0; };
+  var pill=L.on?'<span class="pill mint">Live</span>':'<span class="pill gold">Paused</span>';
+  var note=L.on
+    ? 'This week you earned <b>$'+money(m.cur)+'</b>. Your ladder splits it before you can spend it.'
+    : 'Preview of your week on <b>$'+money(m.cur)+'</b> of gig income. Turn the ladder on to lock this split in.';
+  el.innerHTML =
+    '<div class="lh-head"><div><div class="lh-kicker">PAYCHECK LADDER · YOUR STEADY SALARY</div>'+
+    '<div class="lh-salary">$'+money(L.weekly)+' <small>every Friday · next '+nextFriday()+'</small></div></div>'+pill+'</div>'+
+    '<div class="mut" style="margin-top:2px">'+note+'</div>'+
+    '<div class="splitbar"><i class="seg-salary" style="width:'+pct(m.salary)+'%"></i><i class="seg-buffer" style="width:'+pct(m.buffer)+'%"></i><i class="seg-jars" style="width:'+pct(m.jars)+'%"></i><i class="seg-spend" style="width:'+pct(m.spend)+'%"></i></div>'+
+    '<div class="lh-legend">'+
+    '<span><i class="lh-dot" style="background:#f6c453"></i>Salary <b>$'+money(m.salary)+'</b></span>'+
+    '<span><i class="lh-dot" style="background:#a855f7"></i>Buffer <b>$'+money(m.buffer)+'</b></span>'+
+    '<span><i class="lh-dot" style="background:#2ee6a8"></i>Jars <b>$'+money(m.jars)+'</b></span>'+
+    '<span><i class="lh-dot" style="background:rgba(255,255,255,.4)"></i>To spend <b>$'+money(m.spend)+'</b></span></div>'+
+    '<div class="lh-foot">Buffer reserve: <b>$'+money(m.reserve)+'</b> · covers <b>'+m.weeks+' Friday'+(m.weeks===1?'':'s')+'</b> with no new income.<br>🛡 Protected: biometric lock · AI fraud check on every move · nothing leaves without your approval.</div>'+
+    '<div class="lh-btns"><button class="bigbtn" onclick="go(\'ladder\')">See my ladder</button>'+
+    '<button class="bigbtn ghost" onclick="toggleLadder()">'+(L.on?'Pause ladder':'Turn ladder on')+'</button></div>';
+}
+/* --- Edge case 1: failed transfer is a real record, not a vanishing toast --- */
+function failSend(to,a,why){
+  S.txs.unshift({d:'Today',t:'Send to '+to+' — failed',a:-a,i:'↗️',k:'out',st:'failed',why:why});
+  S.lastFailed={n:to,a:a}; save(); render();
+}
+function retryFailed(){
+  var f=S.lastFailed; if(!f){go('send');return;}
+  go('send'); $('sendTo').value=f.n; $('sendAmt').value=f.a;
+  toast('Filled in again. Check it and send when ready.');
+}
+/* --- Edge case 2: bad network queues the send, settles when data returns --- */
+function settlePending(){
+  var pend=S.txs.filter(function(tx){return tx.k==='pend'&&tx.st==='pending';});
+  var done=0, failed=0;
+  pend.forEach(function(tx){
+    var amt=Math.abs(tx.a), fee=tx.fee||0;
+    if(amt+fee<=S.balance){
+      S.balance-=(amt+fee); tx.k='out'; tx.st='settled'; tx.t=tx.t.replace(' · queued','');
+      if(fee>0)S.txs.unshift({d:'Today',t:'Send fee',a:-fee,i:'💸',k:'out'});
+      done++;
+    } else { tx.st='failed'; tx.t=tx.t.replace(' · queued',' — failed'); tx.why='Not enough balance when data returned'; failed++; }
+  });
+  if(done>0||failed>0){ save(); render(); toast(done>0?('Data back: '+done+' queued send'+(done>1?'s':'')+' delivered.'):'Queued send failed: not enough balance now. No money moved.'); }
+}
+/* --- Edge case 3: duplicate-charge guard on sends --- */
+function confirmDupSend(){
+  var l=S.lastSend; closeModal(); if(!l)return;
+  S.lastSend={n:l.n,a:l.a,ts:0}; S._dupOk=true;
+  $('sendTo').value=l.n; $('sendAmt').value=l.a; doSend();
+}
+/* --- Edge case 4: an Ajo member defaults, escrow covers, trust drops --- */
+function missedPayment(i){
+  var c=S.circle, m=c.members[i];
+  if(!m||i<c.paid||i===0)return;
+  if(c.escrow<c.amt){toast('Escrow is too low to cover this share.');return;}
+  c.escrow-=c.amt; c.pot+=c.amt; c.paid++;
+  m.trust=Math.max(0,m.trust-8); m.missed=true;
+  S.txs.unshift({d:'Today',t:'Ajo escrow covered '+m.n+' · Round '+c.round,a:-c.amt,i:'🤝',k:'out'});
+  S.notifs.unshift({t:'Ajo: '+m.n+' missed this round',d:'Escrow covered their $'+money(c.amt)+' share. Their trust score dropped to '+m.trust+'.'});
+  save(); render(); renderCircles();
+  toast('Escrow covered '+m.n+'. Their trust dropped to '+m.trust+'.');
+}
+
+load();
+</script>
+
+<script>
+/* ===== Stack Premium icon engine: replaces static emoji with professional stroke icons ===== */
+(function(){
+var P={
+bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.08a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.08a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.08a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+up:'<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
+send:'<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
+jar:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>',
+chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+weather:'<path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.9 12.5a4 4 0 0 0-5.8-4"/><path d="M13 22H3a4 4 0 0 1 0-8h1a6.5 6.5 0 0 1 9-6.03"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+rain:'<path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/>',
+storm:'<path d="M6 16.33A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.97"/><path d="m13 12-3 5h4l-3 5"/>',
+fog:'<path d="M3 10h18"/><path d="M5 14h14"/><path d="M7 18h10"/>',
+elder:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+chart:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+zap:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+bank:'<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+cash:'<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/>',
+fly:'<rect width="20" height="12" x="2" y="10" rx="2"/><path d="M12 14v-5"/><path d="m10 11 2-2 2 2"/>',
+receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+mic:'<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+id:'<rect width="20" height="16" x="2" y="4" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M6 18c0-1.5 1-3 2-3s2 1.5 2 3"/><path d="M14 8h4"/><path d="M14 12h4"/>',
+signal:'<path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/>',
+home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+card:'<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+spark:'<path d="M9.94 15.5 8.5 14.06 2.36 12.48a.5.5 0 0 1 0-.96L8.5 9.94 10.08 3.8a.5.5 0 0 1 .96 0l1.58 6.14 6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58-1.58 6.14a.5.5 0 0 1-.96 0z"/>',
+phone:'<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
+lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+arrow:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+snow:'<line x1="2" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
+eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+list:'<rect width="8" height="8" x="3" y="3" rx="1"/><rect width="8" height="8" x="13" y="3" rx="1"/><rect width="8" height="8" x="3" y="13" rx="1"/><rect width="8" height="8" x="13" y="13" rx="1"/>'
+};
+var M={'🔔':'bell','⚙️':'gear','⚙':'gear','⬆️':'up','⬆':'up','↗️':'send','↗':'send','🍯':'jar','💬':'chat','🌤️':'weather','🌤':'weather','⛅️':'weather','⛅':'weather','☀️':'sun','☀':'sun','☁️':'cloud','☁':'cloud','🌧️':'rain','🌧':'rain','⛈️':'storm','⛈':'storm','🌫️':'fog','🌫':'fog','👵':'elder','🤖':'bot','🛡️':'shield','🛡':'shield','📈':'chart','✅':'check','💡':'zap','🏦':'bank','💵':'cash','📲':'phone','🧾':'receipt','🤝':'users','🌐':'globe','🌍':'globe','💸':'fly','🎤':'mic','🪪':'id','📶':'signal','🏧':'card','🏠':'home','✓':'check','💳':'card','✨':'spark','📱':'phone','🧑':'elder','🔒':'lock','🔐':'lock','➤':'arrow','❄️':'snow','❄':'snow','👁️':'eye','👁':'eye','📋':'list'};
+var KEYS=Object.keys(M).sort(function(a,b){return b.length-a.length});
+var RX=new RegExp('('+KEYS.map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?'}).join('|')+')','g');
+function svg(k){return '<svg class="sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(P[M[k]]||'')+'</svg>'}
+var SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,SVG:1,NOSCRIPT:1,INPUT:1};
+function swap(node){
+var t=node.nodeValue;if(!t)return;
+RX.lastIndex=0;if(!RX.test(t))return;
+RX.lastIndex=0;
+var frag=document.createDocumentFragment(),last=0,m,sp;
+while((m=RX.exec(t))){
+frag.appendChild(document.createTextNode(t.slice(last,m.index)));
+sp=document.createElement('span');sp.className='se';sp.setAttribute('data-sb','1');sp.innerHTML=svg(m[1]);
+frag.appendChild(sp);
+last=m.index+m[0].length;
+}
+if(last<t.length)frag.appendChild(document.createTextNode(t.slice(last)));
+node.parentNode.replaceChild(frag,node);
+}
+function walk(root){
+if(!root)return;
+var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){var p=n.parentNode;return (p&&SKIP[p.nodeName])?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}},null);
+var list=[],n;while(w.nextNode())list.push(w.currentNode);
+for(var i=0;i<list.length;i++)swap(list[i]);
+}
+var mo=null;
+function pass(){
+if(mo)mo.disconnect();
+try{walk(document.body)}catch(e){}
+if(mo)mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+pass();
+mo=new MutationObserver(function(){requestAnimationFrame(pass)});
+mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+window.sbIcons=pass;
+})();
+</script>
+
+
+<script>
+/* ===== Stack Premium v4 — animated background + pro icon engine ===== */
+(function(){
+  /* --- 1. Gold-dust particle canvas (living background) --- */
+  function mq(q){ try{ return typeof window.matchMedia==='function' && window.matchMedia(q).matches; }catch(e){ return false; } }
+  function raf2(fn){ if(typeof requestAnimationFrame==='function') return requestAnimationFrame(fn); return setTimeout(fn,16); }
+  function caf2(id){ if(typeof cancelAnimationFrame==='function') cancelAnimationFrame(id); else clearTimeout(id); }
+  var cv=document.getElementById('sbCanvas');
+  if(cv && !mq('(prefers-reduced-motion: reduce)')){
+    var ctx=null; try{ ctx=cv.getContext('2d'); }catch(e){ ctx=null; }
+    if(ctx){ var W, H, ps=[], raf=null;
+    var COLORS=['240,195,91','109,94,252','46,230,168','168,85,247','255,255,255'];
+    function size(){ var r=cv.getBoundingClientRect(); W=cv.width=r.width*devicePixelRatio; H=cv.height=r.height*devicePixelRatio; }
+    function make(n){ ps=[]; for(var i=0;i<n;i++) ps.push({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.8+.6)*devicePixelRatio,s:Math.random()*.35+.08,o:Math.random()*.55+.15,ph:Math.random()*6.28,c:COLORS[i%COLORS.length],tw:Math.random()*.02+.005}); }
+    function tick(){ ctx.clearRect(0,0,W,H); var t=Date.now()/1000;
+      for(var i=0;i<ps.length;i++){ var p=ps[i]; p.y-=p.s; p.x+=Math.sin(t*.6+p.ph)*.25;
+        if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
+        var a=p.o*(.55+.45*Math.sin(t*2*p.tw*60+p.ph));
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.283); ctx.fillStyle='rgba('+p.c+','+Math.max(.05,a)+')'; ctx.fill();
+        if(p.r>1.6*devicePixelRatio){ ctx.beginPath(); ctx.arc(p.x,p.y,p.r*3.2,0,6.283); ctx.fillStyle='rgba('+p.c+','+(a*.12)+')'; ctx.fill(); } }
+      raf=raf2(tick); }
+    size(); make(Math.min(90,Math.floor(innerWidth/14))); tick();
+    addEventListener('resize',function(){ size(); });
+    document.addEventListener('visibilitychange',function(){ if(document.hidden){caf2(raf);raf=null;} else if(!raf){tick();} });
+  } }
+  /* --- 2. Mouse parallax on the aurora + card tilt + hero shine --- */
+  var bg=document.querySelector('.sb-bg');
+  if(bg && mq('(pointer:fine)')){
+    addEventListener('pointermove',function(e){
+      var x=(e.clientX/innerWidth-.5), y=(e.clientY/innerHeight-.5);
+      bg.style.transform='translate3d('+(x*10)+'px,'+(y*8)+'px,0)';
+    },{passive:true});
+  }
+  document.addEventListener('pointermove',function(e){
+    var c=e.target.closest && e.target.closest('.bankcard'); if(!c) return;
+    var r=c.getBoundingClientRect(), px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+    c.style.setProperty('--mx',(px*100)+'%'); c.style.setProperty('--my',(py*100)+'%');
+    c.style.transform='perspective(900px) rotateY('+((px-.5)*10)+'deg) rotateX('+((.5-py)*8)+'deg)';
+  },{passive:true});
+  document.addEventListener('pointerout',function(e){
+    var c=e.target.closest && e.target.closest('.bankcard'); if(c) c.style.transform='';
+  });
+  /* --- 3. Professional icon engine v2 — replaces EVERY remaining emoji
+         with a Lucide-style stroke SVG. Flags + currency symbols are kept. --- */
+  var PATHS={
+    bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.08a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.08a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.08a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    up:'<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
+    send:'<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
+    jar:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>',
+    chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    weather:'<path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.9 12.5a4 4 0 0 0-5.8-4"/><path d="M13 22H3a4 4 0 0 1 0-8h1a6.5 6.5 0 0 1 9-6.03"/>',
+    sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+    cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+    rain:'<path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/>',
+    storm:'<path d="M6 16.33A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.97"/><path d="m13 12-3 5h4l-3 5"/>',
+    fog:'<path d="M3 10h18"/><path d="M5 14h14"/><path d="M7 18h10"/>',
+    user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+    shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    chart:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    check:'<path d="M20 6 9 17l-5-5"/>',
+    zap:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+    bank:'<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+    cash:'<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/>',
+    wallet:'<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>',
+    fly:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+    receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+    users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    mic:'<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+    id:'<rect width="20" height="16" x="2" y="4" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M6 18c0-1.5 1-3 2-3s2 1.5 2 3"/><path d="M14 8h4"/><path d="M14 12h4"/>',
+    signal:'<path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/>',
+    home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    card:'<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    spark:'<path d="M9.94 15.5 8.5 14.06 2.36 12.48a.5.5 0 0 1 0-.96L8.5 9.94 10.08 3.8a.5.5 0 0 1 .96 0l1.58 6.14 6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/>',
+    phone:'<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
+    phonecall:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    arrow:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    arrowright:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    snow:'<line x1="2" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
+    eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    list:'<rect width="8" height="8" x="3" y="3" rx="1"/><rect width="8" height="8" x="13" y="3" rx="1"/><rect width="8" height="8" x="3" y="13" rx="1"/><rect width="8" height="8" x="13" y="13" rx="1"/>',
+    scooter:'<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
+    car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H8.2c-.8 0-1.5.4-1.9 1.1L4.6 11l-2.1.3C1.6 11.4 1 12.1 1 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+    fuel:'<line x1="3" x2="15" y1="22" y2="22"/><line x1="4" x2="14" y1="9" y2="9"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0V9.83a2 2 0 0 0-.59-1.42L18 5"/>',
+    gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+    wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    tv:'<rect width="20" height="15" x="2" y="7" rx="2"/><polyline points="17 2 12 7 7 2"/>',
+    armchair:'<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
+    target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+    pen:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+    pointer:'<path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>',
+    barchart:'<line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>',
+    medal:'<circle cx="12" cy="15" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+    star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    mail:'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    hand:'<path d="M18 11V6.5a1.5 1.5 0 0 0-3 0V11m0-5.5v-2a1.5 1.5 0 0 0-3 0V11m0-7.5a1.5 1.5 0 0 0-3 0v8"/><path d="M18 8a1.5 1.5 0 0 1 3 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a1.5 1.5 0 0 1 2.12-2.12L5 16"/>',
+    thumb:'<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+    plug:'<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
+    exchange:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+    package:'<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/>',
+    plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+    flask:'<path d="M10 2v7.5a2 2 0 0 1-.2.9L4.71 20.5a1 1 0 0 0 .9 1.5h12.78a1 1 0 0 0 .9-1.5L14.2 10.4a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
+    file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    refresh:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+    volume:'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+    play:'<polygon points="6 3 20 12 6 21 6 3"/>',
+    coins:'<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>',
+    eth:'<path d="M12 2 5.5 12.5 12 16.5 18.5 12.5Z"/><path d="M12 22 5.5 14.5 12 17.5 18.5 14.5Z"/>',
+    more:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+    layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'
+  };
+  var MAP={
+    '🤖':'bot','🛡':'shield','🛡️':'shield','⚙️':'gear','⚙':'gear','📈':'chart','✅':'check','💬':'chat',
+    '🌤':'weather','🌤️':'weather','⛅':'weather','⛅️':'weather','💡':'zap','🏦':'bank','💵':'cash','🔔':'bell',
+    '↗️':'send','↗':'send','🍯':'jar','📲':'phone','🧾':'receipt','🤝':'users','🌐':'globe','🌍':'globe',
+    '💸':'fly','🎤':'mic','🪪':'id','⬆️':'up','⬆':'up','📶':'signal','🛴':'scooter','🏧':'card','🏠':'home',
+    '💳':'card','❄️':'snow','❄':'snow','👁️':'eye','👁':'eye','✨':'spark','📱':'phone','☀️':'sun','☀':'sun',
+    '🧑':'user','👵':'user','🧓':'user','👴':'user','🔒':'lock','🔐':'lock','➤':'arrow','📋':'list',
+    '☁️':'cloud','☁':'cloud','🌧️':'rain','🌧':'rain','⛈️':'storm','⛈':'storm','🌫️':'fog','🌫':'fog',
+    '👋':'hand','📞':'phonecall','✉️':'mail','🔗':'link','🚗':'car','🎁':'gift','🎉':'spark','🔧':'wrench',
+    '⛽':'fuel','🍿':'tv','🪑':'armchair','🛵':'scooter','💰':'wallet','🎯':'target','📸':'camera',
+    '✍️':'pen','✍':'pen','👆':'pointer','📊':'barchart','🥇':'medal','★':'star','🫵':'pointer','🧕':'user',
+    '👍':'thumb','🔌':'plug','💱':'exchange','🛎':'bell','📦':'package','➕':'plus','🧪':'flask','📄':'file',
+    '🔁':'refresh','🔊':'volume','▶':'play','₿':'coins','Ξ':'eth','⋯':'more','→':'arrowright','✓':'check'
+  };
+  var KEYS=Object.keys(MAP).sort(function(a,b){return b.length-a.length});
+  var esc=function(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');};
+  var RX=new RegExp('('+KEYS.map(esc).join('|')+')(?:\uFE0F|[\u{1F3FB}-\u{1F3FF}])?','gu');
+  function svgFor(k){ var name=MAP[k]; if(!name||!PATHS[name]) return null;
+    return '<svg class="sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+PATHS[name]+'</svg>'; }
+  var SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,SVG:1,NOSCRIPT:1,INPUT:1,SELECT:1,OPTION:1};
+  function swap(node){ var txt=node.nodeValue; if(!txt) return; RX.lastIndex=0; if(!RX.test(txt)) return; RX.lastIndex=0;
+    var frag=document.createDocumentFragment(), last=0, m;
+    while((m=RX.exec(txt))){ var s=svgFor(m[1]); if(!s) continue;
+      frag.appendChild(document.createTextNode(txt.slice(last,m.index)));
+      var sp=document.createElement('span'); sp.className='se'; sp.setAttribute('data-ic',MAP[m[1]]); sp.innerHTML=s; frag.appendChild(sp);
+      last=m.index+m[0].length; }
+    if(last<txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    node.parentNode.replaceChild(frag,node); }
+  function walk(root){ if(!root) return;
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){ var p=n.parentNode; return (p&&SKIP[p.nodeName])?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT; }},null);
+    var list=[], n; while(w.nextNode()) list.push(w.currentNode);
+    for(var i=0;i<list.length;i++){ try{swap(list[i]);}catch(e){} } }
+  var mo=null;
+  function pass(){ if(mo) mo.disconnect(); try{walk(document.body);}catch(e){} if(mo) mo.observe(document.body,{childList:true,subtree:true,characterData:true}); }
+  pass();
+  mo=new MutationObserver(function(){ raf2(pass); });
+  mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+  window.sbIconsV4=pass;
+  /* Logo mark becomes a professional layers icon */
+  var logo=document.querySelector('.brand .logo');
+  if(logo && logo.textContent.trim()==='S'){ logo.innerHTML='<svg class="sic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+PATHS.layers+'</svg>'; }
+})();
+</script>
+
+</body>
+</html>
