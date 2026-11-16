@@ -42,6 +42,22 @@ The install files are `manifest.webmanifest`, `sw.js` (offline service
 worker), and the icons in `stack-bank-icons/`. They are all generated or
 referenced by `build_stack_premium.py`.
 
+## Real accounts (backend)
+
+Part 1 and 2 of the real app live in `server/` — a Python server with no
+dependencies:
+
+```sh
+python3 server/app.py
+```
+
+Then open http://127.0.0.1:8787/ — the app is served from the same server.
+Inside the app: More → My account → set the server address, create an
+account with a phone number + PIN, and your balance, jars, ladder, and
+Ajo circle sync to the server and follow you to any phone. PINs are
+stored as scrypt hashes, 5 wrong PINs lock the account for 15 minutes.
+See `server/README.md` for the API and how to keep it online.
+
 ## Status
 
 This is a front-end demo. It moves no real money and connects to no bank.

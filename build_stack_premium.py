@@ -651,6 +651,145 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
 assert "load();\n</script>" in t
 t = t.replace("load();\n</script>", V6_JS + "\nload();\n</script>", 1)
 
+# ---------- v7: real accounts — server-backed sign-in + state sync ----------
+ACCOUNT_HTML = """
+<section class="screen hide" id="s-account">
+  <div class="head"><div class="brand"><div class="logo" style="background:linear-gradient(135deg,#141826,#33405e)">🪪</div><div><small>Your account</small><b>My account</b></div></div></div>
+  <div class="card">
+    <div class="mut" id="acctStatus">Not signed in.</div>
+  </div>
+  <div class="card">
+    <div class="field"><label>SERVER ADDRESS</label><input id="apiUrl" placeholder="http://127.0.0.1:8787" inputmode="url"></div>
+    <button class="bigbtn ghost" onclick="sbSetApiUrl()">Save server address</button>
+    <div class="field" style="margin-top:14px"><label>PHONE NUMBER</label><input id="acctPhone" placeholder="+234 801 234 5678" inputmode="tel"></div>
+    <div class="field"><label>YOUR NAME</label><input id="acctName" placeholder="Your name"></div>
+    <div class="field"><label>PIN (4-6 DIGITS)</label><input id="acctPin" type="password" placeholder="••••" inputmode="numeric" maxlength="6"></div>
+    <button class="bigbtn" onclick="sbRegister()">Create my account</button>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="sbLogin()">Sign in</button>
+    <button class="bigbtn ghost" style="margin-top:10px" onclick="sbLogout()">Sign out</button>
+    <div class="dim" style="margin-top:14px;line-height:1.6">Your PIN is stored as a scrambled hash on the server, never as plain text. New phone? Finish the one-tap setup, then sign in here — your account replaces the demo. Money here is still test money; real money needs the licensed partner.</div>
+  </div>
+</section>
+"""
+assert "</section>\n</main>" in t
+t = t.replace("</section>\n</main>", "</section>\n" + ACCOUNT_HTML + "</main>", 1)
+
+t = t.replace("    <button onclick=\"installApp()\">📲 Install app</button>",
+              "    <button onclick=\"installApp()\">📲 Install app</button>\n    <button onclick=\"go('account')\">🪪 My account</button>", 1)
+
+t = t.replace("  if(tab==='ladder')renderLadder();",
+              "  if(tab==='ladder')renderLadder();\n  if(tab==='account')renderAccount();", 1)
+
+t = t.replace("function save(){localStorage.setItem(S_KEY,JSON.stringify(S))}",
+              "function save(){localStorage.setItem(S_KEY,JSON.stringify(S));if(window.sbPushSoon)sbPushSoon();}", 1)
+
+t = t.replace("  ladderTick(); render(); go('home');",
+              "  ladderTick(); render(); go('home');\n  if(window.sbPullState)sbPullState();", 1)
+
+V7_JS = r"""
+/* ===== Stack Premium v7 — real accounts: API client + state sync ===== */
+function sbBase(){ var u=(S&&S.apiUrl||'').replace(/\/+$/,''); return u; }
+function sbToken(){ return (S&&S.apiToken)||''; }
+function sbReq(path,opts){
+  opts=opts||{};
+  return new Promise(function(resolve,reject){
+    var base=sbBase();
+    if(!base){reject(new Error('no server set — save the server address first'));return;}
+    if(typeof fetch!=='function'){reject(new Error('this device cannot reach a server'));return;}
+    var ctrl=null, timer=null;
+    try{ ctrl=new AbortController(); timer=setTimeout(function(){ctrl.abort();},8000); }catch(e){}
+    var headers={'Content-Type':'application/json'};
+    if(sbToken())headers['Authorization']='Bearer '+sbToken();
+    fetch(base+path,{method:opts.method||'GET',headers:headers,body:opts.body?JSON.stringify(opts.body):undefined,signal:ctrl?ctrl.signal:undefined})
+      .then(function(r){ if(timer)clearTimeout(timer); return r.json().then(function(j){ if(!r.ok)throw new Error((j&&j.error)||('server error '+r.status)); return j; }); })
+      .then(resolve)
+      .catch(function(e){ if(timer)clearTimeout(timer); reject(e); });
+  });
+}
+function sbCleanState(){
+  var c={}; for(var k in S){ if(k!=='apiToken') c[k]=S[k]; }
+  return c;
+}
+var _pushT=null, _pushing=false;
+function sbPushSoon(){
+  if(!sbBase()||!sbToken()||_pushing)return;
+  if(_pushT)return;
+  _pushT=setTimeout(function(){_pushT=null;sbPushState();},1000);
+}
+function sbPushState(){
+  if(!sbBase()||!sbToken())return Promise.resolve();
+  _pushing=true; S.syncStatus='syncing';
+  return sbReq('/api/state',{method:'PUT',body:{state:sbCleanState()}}).then(function(j){
+    S.serverUpdatedAt=j.updated_at||0; S.syncStatus='synced'; S.syncAt=Date.now();
+    save(); if($('acctStatus'))renderAccount();
+  }).catch(function(){
+    S.syncStatus='pending'; save(); if($('acctStatus'))renderAccount();
+  }).then(function(){ _pushing=false; });
+}
+function sbPullState(){
+  if(!sbBase()||!sbToken())return Promise.resolve();
+  return sbReq('/api/state').then(function(j){
+    if(j&&j.state){
+      if(S.serverUpdatedAt&&j.updated_at&&j.updated_at<=S.serverUpdatedAt)return; // server is not newer than this phone
+      var url=S.apiUrl, tok=S.apiToken, ph=S.apiPhone, nm=S.apiName;
+      S=j.state; S.apiUrl=url; S.apiToken=tok; S.apiPhone=ph; S.apiName=nm;
+      S.serverUpdatedAt=j.updated_at||0; S.syncStatus='synced'; S.syncAt=Date.now();
+      migrate(); save(); render(); if($('acctStatus'))renderAccount();
+    }
+  }).catch(function(){ /* offline or server down: stay on the phone copy */ });
+}
+function sbSyncLabel(){
+  if(S.syncStatus==='synced')return 'up to date'+(S.syncAt?' · '+new Date(S.syncAt).toLocaleTimeString():'');
+  if(S.syncStatus==='pending')return 'waiting to sync — it will send when the server is reachable';
+  if(S.syncStatus==='syncing')return 'syncing…';
+  return 'not synced yet';
+}
+function renderAccount(){
+  var a=$('acctStatus'); if(!a)return;
+  var url=$('apiUrl'), ph=$('acctPhone'), nm=$('acctName');
+  if(url&&!url.value)url.value=S.apiUrl||'';
+  if(ph&&!ph.value)ph.value=S.apiPhone||'';
+  if(nm&&!nm.value)nm.value=S.apiName||'';
+  a.innerHTML=(sbToken()&&S.apiPhone)
+    ? ('Signed in as <b>'+S.apiPhone+'</b>'+(S.apiName?' ('+S.apiName+')':'')+'<br>Server: '+(S.apiUrl||'—')+'<br>Sync: '+sbSyncLabel())
+    : 'Not signed in. Your money lives only on this phone.<br>Set the server address, then create an account or sign in.';
+}
+function sbSetApiUrl(){
+  var u=($('apiUrl').value||'').trim().replace(/\/+$/,'');
+  if(!u){toast('Enter the server address first');return;}
+  if(u.indexOf('http')!==0){toast('The server address must start with http:// or https://');return;}
+  S.apiUrl=u; save(); renderAccount(); toast('Server set. Now create an account or sign in.');
+}
+function sbRegister(){
+  var phone=($('acctPhone').value||'').trim(), name=($('acctName').value||'').trim(), pin=($('acctPin').value||'').trim();
+  if(!phone||!name||!pin){toast('Fill in phone, name and PIN');return Promise.resolve();}
+  return sbReq('/api/auth/register',{method:'POST',body:{phone:phone,name:name,pin:pin}}).then(function(j){
+    S.apiToken=j.token; S.apiPhone=j.user.phone; S.apiName=j.user.name; S.serverUpdatedAt=0;
+    $('acctPhone').value=j.user.phone; $('acctName').value=j.user.name; $('acctPin').value='';
+    save(); toast('Account created. Welcome, '+j.user.name+'.');
+    return sbPushState().then(function(){ renderAccount(); });
+  }).catch(function(e){ toast(e.message||'Could not create the account'); renderAccount(); });
+}
+function sbLogin(){
+  var phone=($('acctPhone').value||'').trim(), pin=($('acctPin').value||'').trim();
+  if(!phone||!pin){toast('Enter your phone and PIN');return Promise.resolve();}
+  return sbReq('/api/auth/login',{method:'POST',body:{phone:phone,pin:pin}}).then(function(j){
+    S.apiToken=j.token; S.apiPhone=j.user.phone; S.apiName=j.user.name; S.serverUpdatedAt=0;
+    $('acctPhone').value=j.user.phone; $('acctName').value=j.user.name; $('acctPin').value='';
+    save(); toast('Welcome back, '+j.user.name+'.');
+    return sbPullState().then(function(){ renderAccount(); });
+  }).catch(function(e){ toast(e.message||'Could not sign in'); renderAccount(); });
+}
+function sbLogout(){
+  var t=sbToken();
+  if(t)sbReq('/api/auth/logout',{method:'POST'}).catch(function(){});
+  S.apiToken=''; S.apiPhone=''; S.apiName=''; S.syncStatus='off'; save(); renderAccount();
+  toast('Signed out. Your data stays on this phone.');
+}
+"""
+assert "load();\n</script>" in t
+t = t.replace("load();\n</script>", V7_JS + "\nload();\n</script>", 1)
+
 DST.write_text(t, encoding="utf-8")
 print(f"wrote {DST}  {DST.stat().st_size} bytes  lines={t.count(chr(10))+1}")
 # quick checks
